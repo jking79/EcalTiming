@@ -167,6 +167,15 @@ process.GlobalTag = cms.ESSource("PoolDBESSource",
                                  globaltag = cms.string(options.globaltag)
 )
 
+#process.GlobalTag.toGet = cms.VPSet(
+#  	cms.PSet(
+#		record = cms.string("LHCInfoRcd"),
+#           	tag = cms.string("LHCInfoStartFillTest_v2")
+#	),
+#	connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS")
+#)
+
+
 ##  This section is for grabbing the constants from a FrontierPrep for validation
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #process.LHCInfoReader = cms.ESSource("PoolDBESSource",
@@ -184,23 +193,21 @@ process.GlobalTag = cms.ESSource("PoolDBESSource",
 process.LHCInfoReader = cms.ESSource("PoolDBESSource",
 		DBParameters = cms.PSet(
 			messageLevel = cms.untracked.int32(0),
-			authenticationPath = cms.untracked.string('')),
+			authenticationPath = cms.untracked.string('')
+		),
                 toGet = cms.VPSet( 
-				cms.PSet(
-					record = cms.string("LHCInfoRcd"),
-                                	tag = cms.string("LHCInfoStartFillTest_v2")
-				)
-			),
+			cms.PSet(
+				record = cms.string("LHCInfoRcd"),
+                                tag = cms.string("LHCInfoStartFillTest_v2")
+			)
+		),
                 connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')
-	)
+)
 
 process.lhcinfo_prefer = cms.ESPrefer("PoolDBESSource","LHCInfoReader")
 
 ## Process Digi To Raw Step
-process.digiStep = cms.Sequence(process.ecalDigis  + process.ecalPreshowerDigis)
-
-process.load('EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi')
-process.scalersRawToDigi.scalersInputTag = 'rawDataCollector'
+process.digiStep = cms.Sequence( process.ecalDigis  + process.ecalPreshowerDigis )
 
 
 ## Process Reco
@@ -280,11 +287,10 @@ process.dummyHits = cms.EDProducer("DummyRechitDigis",
 
 ##ADDED
 # TRIGGER RESULTS FILTER                                                                                                                                                                                                                                                                   
-process.my_filter = cms.EDFilter("jwk_filter",
-	fedRawDataCollectionTag = cms.InputTag('rawDataCollector'),
-	L1AcceptBunchCrossingCollectionTag = cms.InputTag('scalersRawToDigi'))
-
-process.my_process = cms.Sequence( process.scalersRawToDigi * process.my_filter )
+process.load('EcalTiming.EcalTiming.jwk_filter_cfi')
+process.my_process = cms.Sequence( process.my_filter ) 
+#process.load('EcalTiming.EcalTiming.jwk_ana_cfi')
+#process.my_process = cms.Sequence( process.my_ana )
 
 process.triggerSelectionLoneBunch = cms.EDFilter( "TriggerResultsFilter",
                                                    triggerConditions = cms.vstring('L1_AlwaysTrue'),
@@ -369,15 +375,14 @@ if doReco:
 
 process.seq = cms.Sequence()
 if doReco:
-	process.seq += process.reco
+#	process.seq += process.reco
 	process.seq += process.my_process
-if doAnalysis:
-	process.seq += process.analysis
+#if doAnalysis:
+#	process.seq += process.analysis
 else:
 	process.endp = cms.EndPath(process.RECOoutput)
 
 process.p = cms.Path(process.seq)
-#process.p = cms.Path(process.my_insert)
 
 from datetime import datetime
 processDumpFilename = "processDump" + datetime.now().strftime("%M%S%f") + ".py"

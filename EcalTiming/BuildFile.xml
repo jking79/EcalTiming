@@ -7,6 +7,7 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/RunInfo"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEcal/EgammaClusterProducers"/>

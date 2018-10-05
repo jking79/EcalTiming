@@ -20,6 +20,10 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <time.h>
+#include <fstream>
+#include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,15 +34,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
+//#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+//#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+//#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+//#include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
+//#include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -62,15 +69,18 @@ class jwk_filter : public edm::stream::EDFilter<> {
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      static std::string timeToString(time_t t);
 
-      // ----------member data ---------------------------
+      // ----------member data --------------------------- 
+      
+      LHCInfo* lhcinfo;
 
       //tcc sequence number of currenlty parsed tower block of one DCC
       int iTcc_;
-      edm::InputTag fedRawDataCollectionTag_;
-      edm::InputTag l1AcceptBunchCrossingCollectionTag_;
-      edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
-      edm::EDGetTokenT<L1AcceptBunchCrossingCollection> l1AcceptBunchCrossingCollectionToken_;
+//      edm::InputTag fedRawDataCollectionTag_;
+//      edm::InputTag l1AcceptBunchCrossingCollectionTag_;
+//      edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
+//      edm::EDGetTokenT<L1AcceptBunchCrossingCollection> l1AcceptBunchCrossingCollectionToken_;
 
 
 };
@@ -86,14 +96,14 @@ class jwk_filter : public edm::stream::EDFilter<> {
 //
 // constructors and destructor
 //
-jwk_filter::jwk_filter(const edm::ParameterSet& iConfig):
-   fedRawDataCollectionTag_(iConfig.getParameter<edm::InputTag>("fedRawDataCollectionTag")),
-   l1AcceptBunchCrossingCollectionTag_(iConfig.getParameter<edm::InputTag>("l1AcceptBunchCrossingCollectionTag"))
+jwk_filter::jwk_filter(const edm::ParameterSet& iConfig)//:
+//   fedRawDataCollectionTag_(iConfig.getParameter<edm::InputTag>("fedRawDataCollectionTag")),
+//   l1AcceptBunchCrossingCollectionTag_(iConfig.getParameter<edm::InputTag>("l1AcceptBunchCrossingCollectionTag"))
 
 {
    //now do what ever initialization is needed
-   fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
-   l1AcceptBunchCrossingCollectionToken_ = consumes<L1AcceptBunchCrossingCollection>(l1AcceptBunchCrossingCollectionTag_);
+//   fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
+//   l1AcceptBunchCrossingCollectionToken_ = consumes<L1AcceptBunchCrossingCollection>(l1AcceptBunchCrossingCollectionTag_);
 
 }
 
@@ -111,6 +121,18 @@ jwk_filter::~jwk_filter()
 // member functions
 //
 
+std::string jwk_filter::timeToString(time_t in)
+{
+        char buf[256];
+	struct tm lt;
+	time_t t = ( in >> 32 );
+        localtime_r(&t, &lt);
+        strftime(buf, sizeof(buf),"%F %R:%S", &lt);
+        buf[sizeof(buf)-1] = 0;
+        return std::string(buf);
+}
+
+
 // ------------ method called on each new Event  ------------
 bool
 jwk_filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -121,56 +143,60 @@ jwk_filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel("example",pIn);
 #endif
 
-edm::Handle<FEDRawDataCollection> rawdata;
-iEvent.getByToken(fedRawDataCollectionToken_, rawdata);
+//   edm::Handle<FEDRawDataCollection> rawdata;
+//   iEvent.getByToken(fedRawDataCollectionToken_, rawdata);
+//   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
+//   unsigned short int length =  fedData.size();
+//   std::cout << "fedData Size : " << length << std::endl; 
+
+   std::cout << ">>>>>>>>>>>>>>>>>>>>> It Worked <<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+
+        int run = iEvent.id().run();
+        int lumi = iEvent.luminosityBlock();
+        int event = iEvent.id().event();
+        int bx = iEvent.bunchCrossing();  
+
+	std::cout << "Run: " << run << " Lumi: " << lumi << " Event: " << event << " BX: " << bx << std::endl;	
+
+	edm::ESHandle<LHCInfo> lhcInfoHnd;
+	iSetup.get<LHCInfoRcd>().get(lhcInfoHnd);
 
 
-std::cout << ">>>>>>>>>>>>>>>>>>>>> It Worked <<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+     	if(!lhcInfoHnd.isValid()) {
+     		std::cout << "LHCInfo not found?\n";	
+     	}else{
+		const LHCInfo* lhcInfo = lhcInfoHnd.product();
+	       	std::cout << "LHCInfo Data: \n";
+		std::cout << "Create Time: " << timeToString( (time_t)(lhcInfo->createTime()) ) << std::endl;
+        	std::cout << "beginTime : " << timeToString( lhcInfo->beginTime() )  << std::endl;
+		std::cout << "fillNumber : " << lhcInfo->fillNumber() << std::endl;
+		std::cout << "fillType : " << lhcInfo->fillType() << std::endl;
+		std::cout << "lumiSection : " << lhcInfo->lumiSection() << std::endl;
 
-if(1){
-   edm::Handle<LHCInfoRcd> lhcInfo;
-   iEvent.getByLabel("LHCInfo", lhcInfo);
-   if(!lhcInfo.isValid()) {
-     std::cout << "LHCInfo not found.\n";
-   } else{
-     std::cout << "LHCInfo : \n";
-//     for(L1AcceptBunchCrossingCollection::const_iterator it = l1aHist->begin();
-//         it != l1aHist->end();
-//           ++it){
-//       std::cout << "L1A offset: " <<  it->l1AcceptOffset() << "\t"
-//            << "BX: " <<  it->bunchCrossing() << "\t"
-//            << "Orbit ID: " << it->orbitNumber() << "\t"
-//            << "Trigger type: " << it->eventType() << "\n";
-//            << " ("
-//            //            << trigNames[it->eventType()&0xF] << ")\n";
-//       }
-   }
+     	}
 
-   std::cout << "----------------------------------------------------------------------\n";
-}
+//   std::cout << "----------------------------------------------------------------------\n";
 
-if(1){
-   edm::Handle<L1AcceptBunchCrossingCollection> l1aHist;
-   iEvent.getByToken(l1AcceptBunchCrossingCollectionToken_, l1aHist);
-   if(!l1aHist.isValid()) {
-     std::cout << "L1A history not found.\n";
-   } else if (l1aHist->empty()) {
-     std::cout << "L1A history is empty.\n";
-   } else{
-     std::cout << "L1A history: \n";
-     for(L1AcceptBunchCrossingCollection::const_iterator it = l1aHist->begin();
-         it != l1aHist->end();
-           ++it){
-       std::cout << "L1A offset: " <<  it->l1AcceptOffset() << "\t"
-            << "BX: " <<  it->bunchCrossing() << "\t"
-            << "Orbit ID: " << it->orbitNumber() << "\t"
-            << "Trigger type: " << it->eventType() << "\n";
-//            << " ("
-//            << trigNames[it->eventType()&0xF] << ")\n";
-       }
-   }
-   std::cout << "----------------------------------------------------------------------\n";
- }
+//   if(1){
+//     edm::Handle<L1AcceptBunchCrossingCollection> l1aHist;
+//     iEvent.getByToken(l1AcceptBunchCrossingCollectionToken_, l1aHist);
+//     if(!l1aHist.isValid()) {
+//       std::cout << "L1A history not found.\n";
+//     } else if (l1aHist->empty()) {
+//       std::cout << "L1A history is empty.\n";
+//     } else{
+//       std::cout << "L1A history: \n";
+//       for(L1AcceptBunchCrossingCollection::const_iterator it = l1aHist->begin(); it != l1aHist->end(); ++it){
+//         	std::cout << "L1A offset: " <<  it->l1AcceptOffset() << "\t"
+//              		<< "BX: " <<  it->bunchCrossing() << "\t"
+//              		<< "Orbit ID: " << it->orbitNumber() << "\t"
+//              		<< "Trigger type: " << it->eventType() << "\n";
+//              		<< " ("
+//			        << trigNames[it->eventType()&0xF] << ")\n";
+//         }
+//     }
+//     std::cout << "----------------------------------------------------------------------\n";
+//  }
 
 
 

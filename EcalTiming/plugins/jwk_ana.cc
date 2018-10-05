@@ -33,10 +33,6 @@
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 
-#include "CondCore/Utilities/interface/Utilities.h"
-#include "CondCore/CondDB/interface/ConnectionPool.h"
-#include "CondCore/CondDB/interface/IOVProxy.h"
-
 //
 // class declaration
 //
@@ -62,26 +58,14 @@ class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
 
-	void getPhase( const time_t );
-
-	int startfill;
-	time_t startiov;
-	std::string connect_db_name;
-	std::string tag;
 	int run;
 	int lumi;
 	int event;
 	int bx;
-	time_t eventiov;
 
-	cond::persistency::IOVProxy iov;
-        cond::persistency::ConnectionPool connPool;
-	cond::persistency::Session session;
 
       // ----------member data ---------------------------
 
-	std::vector<float> phase;
-	float bxpc;
 };
 
 //
@@ -98,12 +82,6 @@ class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 jwk_ana::jwk_ana(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-        startfill = 6860;
-        startiov = 6572113756758159895;
-        connect_db_name = "frontier://FrontierPrep/CMS_CONDITIONS";
-        tag = "LHCInfoTest_prompt_v2";
-	phase.clear();
-	bxpc = 0;
 }
 
 
@@ -120,25 +98,6 @@ jwk_ana::~jwk_ana()
 // member functions
 //
 
-void 
-jwk_ana::getPhase( const time_t eventiov )
-{
-
-	phase.clear();
-
-	for (const auto & iovinst : iov) {
-            if( (time_t)iovinst.since <= eventiov and (time_t)iovinst.till >= eventiov ){
-                std::shared_ptr<LHCInfo> payload = session.fetchPayload<LHCInfo>(iovinst.payloadId);
-		for( unsigned int i  =  0; i < payload->beam1VC().size(); i++ ){
-			phase.push_back((payload->beam1VC()[i]+payload->beam2VC()[i])*(2.5/360.0));
-		}
-	    	return; 
-	    }			
-        }
-
-}
-
-// ------------ method called for each event  ------------
 void
 jwk_ana::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -159,12 +118,6 @@ jwk_ana::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         lumi = iEvent.luminosityBlock();
         event = iEvent.id().event();
         bx = iEvent.bunchCrossing();
-	eventiov = iEvent.time().unixTime();
-	getPhase( eventiov );
-	bxpc = phase[bx];	
-
-        std::cout << "Run: " << run << " Lumi: " << lumi << " Event: " << event << " BX: " << bx << " Phase Correction: " << bxpc << std::endl;
-
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
@@ -182,10 +135,6 @@ jwk_ana::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 jwk_ana::beginJob()
 {
-        connPool.configure();
-        session = connPool.createSession( connect_db_name );
-        session.transaction().start( true );
-        iov = session.readIov(tag, true);
 
 }
 
@@ -194,7 +143,6 @@ void
 jwk_ana::endJob()
 {
 
-	session.transaction().commit();
 
 }
 

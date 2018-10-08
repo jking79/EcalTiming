@@ -287,10 +287,10 @@ process.dummyHits = cms.EDProducer("DummyRechitDigis",
 
 ##ADDED
 # TRIGGER RESULTS FILTER                                                                                                                                                                                                                                                                   
-process.load('EcalTiming.EcalTiming.jwk_filter_cfi')
-process.my_process = cms.Sequence( process.my_filter ) 
-#process.load('EcalTiming.EcalTiming.jwk_ana_cfi')
-#process.my_process = cms.Sequence( process.my_ana )
+#process.load('EcalTiming.EcalTiming.jwk_filter_cfi')
+#process.my_process = cms.Sequence( process.my_filter ) 
+process.load('EcalTiming.EcalTiming.jwk_ana_cfi')
+process.my_process = cms.Sequence( process.my_ana )
 
 process.triggerSelectionLoneBunch = cms.EDFilter( "TriggerResultsFilter",
                                                    triggerConditions = cms.vstring('L1_AlwaysTrue'),

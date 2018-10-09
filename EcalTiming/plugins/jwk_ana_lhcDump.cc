@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    anatemplet/jwk_ana
-// Class:      jwk_ana
+// Package:    anatemplet/jwk_ana_lhcDump
+// Class:      jwk_ana_lhcDump
 //
-/**\class Analyzer jwk_ana.cc EcalTiming/EcalTiming/plugins/jwk_ana.cc
+/**\class Analyzer jwk_ana_lhcDump.cc EcalTiming/EcalTiming/plugins/jwk_ana_lhcDump.cc
 
  Description: [one line class summary]
 
@@ -65,10 +65,10 @@
 
 //using reco::TrackCollection;
 
-class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
-      explicit jwk_ana(const edm::ParameterSet&);
-      ~jwk_ana();
+      explicit jwk_ana_lhcDump(const edm::ParameterSet&);
+      ~jwk_ana_lhcDump();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -83,10 +83,10 @@ class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 			typedef int FillTypeId;
 			typedef int ParticleTypeId;
 
-			int run;
-			int lumi;
-			int event;
-			int bx;
+			unsigned int run;
+			unsigned int lumi;
+			unsigned long  event;
+			unsigned int bx;
 
                         void initRoot();
                         void dbToRoot( const LHCInfo & obja );
@@ -94,14 +94,15 @@ class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
         //                void dump_txt( const L & obja, time_t tb, time_t tei, std::ostream& file_out );
         //                void dump_phase( const L & obja, time_t tb, time_t tei, std::ostream& file_out );
                         static std::string timeToString(time_t t);
+        		void findAndReplaceAll(std::string & data, std::string toSearch, std::string replaceStr);
 
       // ----------member data ---------------------------
 
                         TTree *tree;
                         TFile *tfile;
-			int error_cnt;
-			int no_data;
-			int both; 
+
+
+			unsigned long		eventCount;
 
         		unsigned int		fillNumber;
 
@@ -182,6 +183,7 @@ class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 //                        TH1F *h23_SizeBC1;
 //                        TH1F *h24_SizeBC2;
 			TH1F *h25_Phase;
+			TH2F *h26_bxPhase;
 
 };
 
@@ -196,13 +198,14 @@ class jwk_ana : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 //
 // constructors and destructor
 //
-jwk_ana::jwk_ana(const edm::ParameterSet& iConfig)
+jwk_ana_lhcDump::jwk_ana_lhcDump(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
+
 }
 
 
-jwk_ana::~jwk_ana()
+jwk_ana_lhcDump::~jwk_ana_lhcDump()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -215,17 +218,47 @@ jwk_ana::~jwk_ana()
 // member functions
 //
 
-std::string jwk_ana::timeToString(time_t t)
+void jwk_ana_lhcDump::findAndReplaceAll(std::string & data, std::string toSearch, std::string replaceStr)
+{
+
+        size_t pos = data.find(toSearch);
+        while( pos != std::string::npos)
+        {
+                data.replace(pos, toSearch.size(), replaceStr);
+                pos =data.find(toSearch, pos + toSearch.size());
+        }
+}
+
+
+std::string jwk_ana_lhcDump::timeToString(time_t t)
 {
         char buf[256];
-	struct tm lt;
+        struct tm lt;
+        std::string space(" ");
+        std::string colon(":");
+        std::string underline("_");
         localtime_r(&t, &lt);
         strftime(buf, sizeof(buf),"%F %R:%S", &lt);
         buf[sizeof(buf)-1] = 0;
-        return std::string(buf);
+        std::string ret(buf);
+//        findAndReplaceAll( ret, " ", "_" );
+        size_t pos = ret.find(space);
+        while( pos != std::string::npos)
+        {
+                ret.replace(pos, space.size(), underline);
+                pos = ret.find(space, pos + space.size());
+        }
+//        findAndReplaceAll( ret, ":", "_" );
+        pos = ret.find(colon);
+        while( pos != std::string::npos)
+        {
+                ret.replace(pos, colon.size(), underline);
+                pos = ret.find(colon, pos + colon.size());
+        }
+	return ret;
 }
 
-void jwk_ana::initRoot()
+void jwk_ana_lhcDump::initRoot()
 {
         std::stringstream title;
         std::stringstream fname;
@@ -248,7 +281,7 @@ void jwk_ana::initRoot()
 
         tree->Branch("run",              	&run,            	"run/i");
         tree->Branch("lumi",              	&lumi,            	"lumi/i");
-        tree->Branch("event",              	&event,            	"event/i");
+        tree->Branch("event",              	&event,            	"event/l");
         tree->Branch("bx",              	&bx,            	"bx/i");
 
         tree->Branch("fillNumber",          	&fillNumber,          	"fillNumber/i");
@@ -317,8 +350,8 @@ void jwk_ana::initRoot()
 //        h22_SizeVC2 =           new TH1F("h22_SizeVC2","Beam2VC BX",bins,since,till);
 //        h23_SizeBC1 =           new TH1F("h23_SizeBC1","BunchConfig BX",bins,since,till);
 //        h24_SizeBC2 =           new TH1F("h24_SizeBC2","BunchConfig BX",bins,since,till);
-	h25_Phase = 		new TH1F("h25_Phase","Phase Correction",1000,0,100);
-
+	h25_Phase = 		new TH1F("h25_Phase","Phase Correction",2000,-10,10);
+	h26_bxPhase = 		new TH2F("h26_bxPhase","Phase Correction by BX", 3564,0,3564,1000,0,1000 );
 
         lumiPerBX.clear();
 	beam1VC.clear();
@@ -333,14 +366,26 @@ void jwk_ana::initRoot()
 //        std::cout << "Tree created" << std::endl;
 }
 
-void jwk_ana::closeRoot()
+void jwk_ana_lhcDump::closeRoot()
 {
-        tree->Write();
+//        tree->Write();
+
+         h4_numBunchesB1->Write();
+         h5_numBunchesB2->Write();
+         h6_collidingBunches->Write();
+         h7_targetBunches->Write();
+         h11_crossingAngle->Write();
+         h12_betaStar->Write();
+         h13_intensityB1->Write();
+         h14_intensityB2->Write();
+         h25_Phase->Write();
+         h26_bxPhase->Write();
+
 	tfile->Write();
         tfile->Close();
 }
 
-void jwk_ana::dbToRoot(const LHCInfo & obja )
+void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja )
 {
         createTime = obja.createTime();
         beginTime = obja.beginTime();
@@ -402,16 +447,20 @@ void jwk_ana::dbToRoot(const LHCInfo & obja )
         Size_bunchConfigurationForBeam2 = obja.bunchConfigurationForBeam2().size();
         for( unsigned int i  =  0; i < Size_bunchConfigurationForBeam2; i++ ){ bunchConfigurationForBeam2.push_back( obja.bunchConfigurationForBeam2()[i] ); }
 
-	for( unsigned int i  =  0; i < Size_beam1VC; i++ ){ 
-		phase.push_back((obja.beam1VC()[i]+obja.beam2VC()[i])*(2.5/360.0)); 
+	for( unsigned int i  =  0; i < Size_beam1VC; i++ ){
+		float phcor = (obja.beam1VC()[i]+obja.beam2VC()[i])*(2.5/360.0); 
+		phase.push_back(phcor*100);
+	//	std::cout << i << " " << eventCount << " " << phcor*100 << std::endl;
+		h26_bxPhase->Fill(i,eventCount,phcor*100); 
 	}
         h25_Phase->Fill(phase[bx]);
+
 
         tree->Fill();
 }
 
 void
-jwk_ana::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+jwk_ana_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -420,6 +469,9 @@ jwk_ana::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         event = iEvent.id().event();
         bx = iEvent.bunchCrossing();
 
+	eventCount++;	
+
+	std::cout << "Event count : " << eventCount << std::endl;
 
         edm::ESHandle<LHCInfo> lhcInfoHnd;
         iSetup.get<LHCInfoRcd>().get(lhcInfoHnd);
@@ -458,21 +510,22 @@ jwk_ana::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-jwk_ana::beginJob()
+jwk_ana_lhcDump::beginJob()
 {
+	eventCount = 0;
 	initRoot();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-jwk_ana::endJob()
+jwk_ana_lhcDump::endJob()
 {
         closeRoot();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-jwk_ana::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+jwk_ana_lhcDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -487,4 +540,4 @@ jwk_ana::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(jwk_ana);
+DEFINE_FWK_MODULE(jwk_ana_lhcDump);

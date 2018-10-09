@@ -86,7 +86,7 @@ else:
 #options.files = cms.untracked.vstring
 #options.streamName = cms.untracked.vstring
 #options.maxEvents = -1 # -1 means all events
-options.maxEvents = 10
+options.maxEvents = 1000 # use 500 for jwk_ana_lhcInfoDump
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -289,7 +289,8 @@ process.dummyHits = cms.EDProducer("DummyRechitDigis",
 # TRIGGER RESULTS FILTER                                                                                                                                                                                                                                                                   
 #process.load('EcalTiming.EcalTiming.jwk_filter_cfi')
 #process.my_process = cms.Sequence( process.my_filter ) 
-process.load('EcalTiming.EcalTiming.jwk_ana_cfi')
+#process.load('EcalTiming.EcalTiming.jwk_ana_cfi')
+process.load('EcalTiming.EcalTiming.jwk_ana_lhcDump_cfi')
 process.my_process = cms.Sequence( process.my_ana )
 
 process.triggerSelectionLoneBunch = cms.EDFilter( "TriggerResultsFilter",

@@ -93,6 +93,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondFormats/RunInfo/interface/LHCInfo.h"
+
 #include "EcalTiming/EcalTiming/interface/EcalTimingEvent.h"
 #include "EcalTiming/EcalTiming/interface/EcalCrystalTimingCalibration.h"
 
@@ -213,6 +216,7 @@ private:
 	/// so that the upstream endcap is 0.
 	///
 	EcalTimingEvent correctGlobalOffset(const EcalTimingEvent& ev, int splashDir, float bunchCorr);
+	EcalTimingEvent correctRFphase(const EcalTimingEvent& te, float phCorr)
 
 	unsigned int getElecID(DetId id)
 	{

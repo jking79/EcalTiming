@@ -106,71 +106,83 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 
         		unsigned int		fillNumber;
 
-        		unsigned short  	bunchesInBeam1;
-        		unsigned short  	bunchesInBeam2;
-        		unsigned short  	collidingBunches;
-        		unsigned short  	targetBunches;
+                        float                   bx0pc;
+                        float                   bxm4pc;
+                        float                   bxm3pc;
+                        float                   bxm2pc;
+                        float                   bxm1pc;
+                        float                   bxp1pc;
+                        float                   bxp2pc;
+                        float                   bxp3pc;
+                        float                   bxp4pc;
+                        float                   bxp5pc;
+
+//        		unsigned short  	bunchesInBeam1;
+//        		unsigned short  	bunchesInBeam2;
+//        		unsigned short  	collidingBunches;
+//        		unsigned short  	targetBunches;
 	
-        		FillTypeId      	fillType;
-        		ParticleTypeId  	particleTypeForBeam1;
-        		ParticleTypeId  	particleTypeForBeam2;
-        		float           	crossingAngle;
-        		float           	betaStar;
-        		float        		intensityForBeam1;
-        		float       		intensityForBeam2;
+//        		FillTypeId      	fillType;
+//        		ParticleTypeId  	particleTypeForBeam1;
+//        		ParticleTypeId  	particleTypeForBeam2;
 
-        		float           	energy;
-        		float           	delivLumi;
-        		float           	recLumi;
-			float			instLumi;
-			float			instLumiError;
+//        		float           	crossingAngle;
+//        		float           	betaStar;
+//        		float        		intensityForBeam1;
+//        		float       		intensityForBeam2;
 
-        		cond::Time_t    	createTime;
-        		cond::Time_t    	beginTime;
-        		cond::Time_t    	endTime;
-        		cond::Time_t    	deltaTime;
-			cond::Time_t            binTime;
-        		std::string     	injectionScheme;
-        		std::vector<float>      lumiPerBX;
-			unsigned int		Size_lumiPerBX;
-        		std::string     	lhcComment;
-        		std::string     	lhcState;
-        		std::string     	ctppsStatus;
+//        		float           	energy;
+//        		float           	delivLumi;
+//        		float           	recLumi;
+//			float			instLumi;
+//			float			instLumiError;
+
+//        		cond::Time_t    	createTime;
+//        		cond::Time_t    	beginTime;
+//        		cond::Time_t    	endTime;
+//        		cond::Time_t    	deltaTime;
+//			cond::Time_t            binTime;
+//        		std::string     	injectionScheme;
+//        		std::vector<float>      lumiPerBX;
+//			unsigned int		Size_lumiPerBX;
+//        		std::string     	lhcComment;
+//        		std::string     	lhcState;
+//        		std::string     	ctppsStatus;
         		unsigned int    	lumiSection;
 
         		std::vector<float>      beam1VC;
                         unsigned int            Size_beam1VC;
         		std::vector<float>      beam2VC;
                         unsigned int            Size_beam2VC;
-        		std::vector<float>      beam1RF;
-                        unsigned int            Size_beam1RF;
-        		std::vector<float>      beam2RF;
-                        unsigned int            Size_beam2RF;
+//        		std::vector<float>      beam1RF;
+//                      unsigned int            Size_beam1RF;
+//        		std::vector<float>      beam2RF;
+//                      unsigned int            Size_beam2RF;
 
-			bool			is25nsBunchSpacing;
+//			bool			is25nsBunchSpacing;
 
-        		std::vector<int>         bunchConfigurationForBeam1;
-                        unsigned int            Size_bunchConfigurationForBeam1;
-        		std::vector<int>         bunchConfigurationForBeam2;
-                        unsigned int            Size_bunchConfigurationForBeam2;
+//        		std::vector<int>         bunchConfigurationForBeam1;
+//                       unsigned int            Size_bunchConfigurationForBeam1;
+//        		std::vector<int>         bunchConfigurationForBeam2;
+//                        unsigned int            Size_bunchConfigurationForBeam2;
 
 			std::vector<float>	phase;
 
-			std::vector<std::string> errorList;
+//			std::vector<std::string> errorList;
 //			  TH1F *h1_binWidth;
 //                        TH1F *h2_binTime;
 //                        TH1F *h3_fillNumber;
-                        TH1F *h4_numBunchesB1;
-                        TH1F *h5_numBunchesB2;
-                        TH1F *h6_collidingBunches;
-                        TH1F *h7_targetBunches;
+//                       TH1F *h4_numBunchesB1;
+//                        TH1F *h5_numBunchesB2;
+//                        TH1F *h6_collidingBunches;
+//                        TH1F *h7_targetBunches;
 //                        TH1F *h8_fillType;
 //                        TH1F *h9_particleTypeB1;
 //                        TH1F *h10_particleTypeB2;
-                        TH1F *h11_crossingAngle;
-                        TH1F *h12_betaStar;
-                        TH1F *h13_intensityB1;
-                        TH1F *h14_intensityB2;
+//                        TH1F *h11_crossingAngle;
+//                        TH1F *h12_betaStar;
+//                        TH1F *h13_intensityB1;
+//                        TH1F *h14_intensityB2;
 //                        TH1F *h15_energy;
 //                        TH1F *h16_delivLumi;
 //                        TH1F *h17_recLumi;
@@ -184,6 +196,7 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 //                        TH1F *h24_SizeBC2;
 			TH1F *h25_Phase;
 			TH2F *h26_bxPhase;
+			TH1F *h27_filledbx;
 
 };
 
@@ -286,59 +299,73 @@ void jwk_ana_lhcDump::initRoot()
 
         tree->Branch("fillNumber",          	&fillNumber,          	"fillNumber/i");
 
-        tree->Branch("bunchesInBeam1",          &bunchesInBeam1,        "bunchesInBeam1/s");
-        tree->Branch("bunchesInBeam2",   	&bunchesInBeam2,        "bunchesInBeam2/s");
-        tree->Branch("collidingBunches",        &collidingBunches,      "collidingBunches/s");
-        tree->Branch("targetBunches",          	&targetBunches,         "targetBunches/s");
 
-        tree->Branch("fillType",         	&fillType,         	"fillType/s");
-        tree->Branch("particleTypeForBeam1",    &particleTypeForBeam1,  "particleTypeForBeam1/s");
-        tree->Branch("particleTypeForBeam2",    &particleTypeForBeam2,  "particleTypeForBeam2/s");
-        tree->Branch("crossingAngle",           &crossingAngle,         "crossingAngle/F");
-        tree->Branch("betaStar",          	&betaStar,          	"betaStar/F");
-        tree->Branch("intensityForBeam1",       &intensityForBeam1,     "intensityForBeam1/F");
-        tree->Branch("intensityForBeam2",       &intensityForBeam2,     "intensityForBeam2/F");
-
-        tree->Branch("energy",            	&energy,            	"energy/F");
-        tree->Branch("delivLumi",          	&delivLumi,          	"delivLumi/F");
-        tree->Branch("recLumi",            	&recLumi,            	"recLumi/F");
-        tree->Branch("instLumi",		&instLumi,		"instLumi/F");
-        tree->Branch("instLumiError",		&instLumiError,		"instLumiError/F");
+        tree->Branch("bx0pc",               &bx0pc,              "bx0pc/F");
+        tree->Branch("bxm4pc",              &bxm4pc,              "bxm4pc/F");
+        tree->Branch("bxm3pc",              &bxm3pc,              "bxm3pc/F");
+        tree->Branch("bxm4pc",              &bxm2pc,              "bxm2pc/F");
+        tree->Branch("bxm1pc",              &bxm1pc,              "bxm1pc/F");
+        tree->Branch("bxp1pc",              &bxp1pc,              "bxp5pc/F");
+        tree->Branch("bxp2pc",              &bxp2pc,              "bxp4pc/F");
+        tree->Branch("bxp3pc",              &bxp3pc,              "bxp3pc/F");
+        tree->Branch("bxp4pc",              &bxp4pc,              "bxp2pc/F");
+        tree->Branch("bxp5pc",              &bxp5pc,              "bxp1pc/F");
 
 
-        tree->Branch("createTime",            	&createTime,           	"createTime/i");
-        tree->Branch("beginTime",            	&beginTime,            	"beginTime/i");
-        tree->Branch("endTime",          	&endTime,          	"endTime/i");
-        tree->Branch("deltaTime",         	&deltaTime,         	"deltaTime/i");
 
-        tree->Branch("injectionScheme",         &injectionScheme,       "injectionScheme/C");
-        tree->Branch("lumiPerBX",            	"std::vector<float>",   &lumiPerBX);
-        tree->Branch("lhcComment",            	&lhcComment,            "lhcComment/C");
-        tree->Branch("lhcState",            	&lhcState,            	"lhcState/C");
-        tree->Branch("ctppsStatus",            	&ctppsStatus,           "ctppsStatus/C");
-        tree->Branch("lumiSection",            	&lumiSection,           "lumiSection/i");
+//        tree->Branch("bunchesInBeam1",          &bunchesInBeam1,        "bunchesInBeam1/s");
+//        tree->Branch("bunchesInBeam2",   	&bunchesInBeam2,        "bunchesInBeam2/s");
+//        tree->Branch("collidingBunches",        &collidingBunches,      "collidingBunches/s");
+//        tree->Branch("targetBunches",          	&targetBunches,         "targetBunches/s");
 
-        tree->Branch("beam1VC",          	"std::vector<float>",	&beam1VC);
-        tree->Branch("beam2VC",         	"std::vector<float>",   &beam2VC);
+//        tree->Branch("fillType",         	&fillType,         	"fillType/s");
+//        tree->Branch("particleTypeForBeam1",    &particleTypeForBeam1,  "particleTypeForBeam1/s");
+//        tree->Branch("particleTypeForBeam2",    &particleTypeForBeam2,  "particleTypeForBeam2/s");
+//        tree->Branch("crossingAngle",           &crossingAngle,         "crossingAngle/F");
+//        tree->Branch("betaStar",          	&betaStar,          	"betaStar/F");
+//        tree->Branch("intensityForBeam1",       &intensityForBeam1,     "intensityForBeam1/F");
+//        tree->Branch("intensityForBeam2",       &intensityForBeam2,     "intensityForBeam2/F");
+//
+//        tree->Branch("energy",            	&energy,            	"energy/F");
+//        tree->Branch("delivLumi",          	&delivLumi,          	"delivLumi/F");
+//        tree->Branch("recLumi",            	&recLumi,            	"recLumi/F");
+//        tree->Branch("instLumi",		&instLumi,		"instLumi/F");
+//        tree->Branch("instLumiError",		&instLumiError,		"instLumiError/F");
+//
+//
+//        tree->Branch("createTime",            	&createTime,           	"createTime/i");
+//        tree->Branch("beginTime",            	&beginTime,            	"beginTime/i");
+//        tree->Branch("endTime",          	&endTime,          	"endTime/i");
+//        tree->Branch("deltaTime",         	&deltaTime,         	"deltaTime/i");
+//
+//        tree->Branch("injectionScheme",         &injectionScheme,       "injectionScheme/C");
+//        tree->Branch("lumiPerBX",            	"std::vector<float>",   &lumiPerBX);
+//        tree->Branch("lhcComment",            	&lhcComment,            "lhcComment/C");
+//        tree->Branch("lhcState",            	&lhcState,            	"lhcState/C");
+//        tree->Branch("ctppsStatus",            	&ctppsStatus,           "ctppsStatus/C");
+          tree->Branch("lumiSection",            	&lumiSection,           "lumiSection/i");
+//
+//        tree->Branch("beam1VC",          	"std::vector<float>",	&beam1VC);
+//        tree->Branch("beam2VC",         	"std::vector<float>",   &beam2VC);
+//
+//        tree->Branch("is25nsBunchSpacing",      &is25nsBunchSpacing,    "is25nsBunchSpacing/O");
+//
+//        tree->Branch("bunchConfigurationForBeam1",	"std::vector<int>",   &bunchConfigurationForBeam1);
+//        tree->Branch("bunchConfigurationForBeam2",	"std::vector<int>",   &bunchConfigurationForBeam2);
+//
+//        tree->Branch("phase", "std::vector<float>",	&phase);
 
-        tree->Branch("is25nsBunchSpacing",      &is25nsBunchSpacing,    "is25nsBunchSpacing/O");
-
-        tree->Branch("bunchConfigurationForBeam1",	"std::vector<int>",   &bunchConfigurationForBeam1);
-        tree->Branch("bunchConfigurationForBeam2",	"std::vector<int>",   &bunchConfigurationForBeam2);
-
-	tree->Branch("phase", "std::vector<float>",	&phase);
-
-        h4_numBunchesB1 = 	new TH1F("h4_numBunchesB1","Number of Bunches for Beam 1",bunchSlots,0,bunchSlots);
-        h5_numBunchesB2 = 	new TH1F("h5_numBunchesB2","Number of Bunches for Beam 2",bunchSlots,0,bunchSlots);
-        h6_collidingBunches = 	new TH1F("h6_collidingBunches","Number of Coliding Bunches",bunchSlots,0,bunchSlots);
-        h7_targetBunches = 	new TH1F("h7_targetBunches","Number of Target Bunches",bunchSlots,0,bunchSlots);
+//        h4_numBunchesB1 = 	new TH1F("h4_numBunchesB1","Number of Bunches for Beam 1",bunchSlots,0,bunchSlots);
+//        h5_numBunchesB2 = 	new TH1F("h5_numBunchesB2","Number of Bunches for Beam 2",bunchSlots,0,bunchSlots);
+//        h6_collidingBunches = 	new TH1F("h6_collidingBunches","Number of Coliding Bunches",bunchSlots,0,bunchSlots);
+//        h7_targetBunches = 	new TH1F("h7_targetBunches","Number of Target Bunches",bunchSlots,0,bunchSlots);
 //        h8_fillType = 		new TH1F("h8_fillType","Fill Type",bins,since,till);
 //        h9_particleTypeB1 = 	new TH1F("h9_particleTypeB1","Particle Type for Beam 1",bins,since,till);
 //        h10_particleTypeB2 = 	new TH1F("h10_particleTypeB2","Particle Type for Beam 1",bins,since,till);
-        h11_crossingAngle = 	new TH1F("h11_crossingAngle","Crossing Angle",360,0,360);
-        h12_betaStar = 		new TH1F("h12_betaStar","Beta Star",100,0,360);
-        h13_intensityB1 = 	new TH1F("h13_intensityB1","Intensity of Beam 1",1000,0,1000);
-        h14_intensityB2 = 	new TH1F("h14_intensityB2","Intensity of Beam 2",1000,0,1000);
+//        h11_crossingAngle = 	new TH1F("h11_crossingAngle","Crossing Angle",360,0,360);
+//        h12_betaStar = 		new TH1F("h12_betaStar","Beta Star",100,0,360);
+//        h13_intensityB1 = 	new TH1F("h13_intensityB1","Intensity of Beam 1",1000,0,1000);
+//        h14_intensityB2 = 	new TH1F("h14_intensityB2","Intensity of Beam 2",1000,0,1000);
 //        h15_energy = 		new TH1F("h15_energy","Energy",bins,since,till);
 //        h16_delivLumi = 	new TH1F("h16_delivLumi","Delivered Luminosity",bins,since,till);
 //        h17_recLumi = 		new TH1F("h17_recLumi","Recorded Luminosity",bins,since,till);
@@ -350,36 +377,38 @@ void jwk_ana_lhcDump::initRoot()
 //        h22_SizeVC2 =           new TH1F("h22_SizeVC2","Beam2VC BX",bins,since,till);
 //        h23_SizeBC1 =           new TH1F("h23_SizeBC1","BunchConfig BX",bins,since,till);
 //        h24_SizeBC2 =           new TH1F("h24_SizeBC2","BunchConfig BX",bins,since,till);
-	h25_Phase = 		new TH1F("h25_Phase","Phase Correction",2000,-10,10);
-	h26_bxPhase = 		new TH2F("h26_bxPhase","Phase Correction by BX", 3564,0,3564,1000,0,1000 );
+	h25_Phase = 		new TH1F("h25_Phase","Phase Correction",2000,-100,100);
+	h26_bxPhase = 		new TH2F("h26_bxPhase","Phase Correction by BX", 3564,0,3564,10000,0,10000 );
+	h27_filledbx = 		new TH1F("h27_FilledBX","Filled BXs",12,-5,6);
 
-        lumiPerBX.clear();
+//      lumiPerBX.clear();
 	beam1VC.clear();
 	beam2VC.clear();
-	beam1RF.clear();
-	beam1RF.clear();
+//	beam1RF.clear();
+//	beam1RF.clear();
 	phase.clear();
 
-	bunchConfigurationForBeam1.clear();
-	bunchConfigurationForBeam2.clear();
+//	bunchConfigurationForBeam1.clear();
+//	bunchConfigurationForBeam2.clear();
 
-//        std::cout << "Tree created" << std::endl;
+        std::cout << "Tree created" << std::endl;
 }
 
 void jwk_ana_lhcDump::closeRoot()
 {
 //        tree->Write();
 
-         h4_numBunchesB1->Write();
-         h5_numBunchesB2->Write();
-         h6_collidingBunches->Write();
-         h7_targetBunches->Write();
-         h11_crossingAngle->Write();
-         h12_betaStar->Write();
-         h13_intensityB1->Write();
-         h14_intensityB2->Write();
+//         h4_numBunchesB1->Write();
+//         h5_numBunchesB2->Write();
+//         h6_collidingBunches->Write();
+//         h7_targetBunches->Write();
+//         h11_crossingAngle->Write();
+//         h12_betaStar->Write();
+//         h13_intensityB1->Write();
+//         h14_intensityB2->Write();
          h25_Phase->Write();
          h26_bxPhase->Write();
+	 h27_filledbx->Write(); 
 
 	tfile->Write();
         tfile->Close();
@@ -387,74 +416,95 @@ void jwk_ana_lhcDump::closeRoot()
 
 void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja )
 {
-        createTime = obja.createTime();
-        beginTime = obja.beginTime();
-        endTime = obja.endTime();
+//        createTime = obja.createTime();
+//        beginTime = obja.beginTime();
+//        endTime = obja.endTime();
 
         fillNumber = obja.fillNumber();
 
-        bunchesInBeam1 = obja.bunchesInBeam1();
-        h4_numBunchesB1->Fill(bunchesInBeam1);
-        bunchesInBeam2 = obja.bunchesInBeam2();
-        h5_numBunchesB2->Fill(bunchesInBeam2);
-        collidingBunches = obja.collidingBunches();
-        h6_collidingBunches->Fill(collidingBunches);
-        targetBunches = obja.targetBunches();
-        h7_targetBunches->Fill(targetBunches);
-
-        fillType = obja.fillType();
-        particleTypeForBeam1 = obja.particleTypeForBeam1();
-        particleTypeForBeam2 = obja.particleTypeForBeam2();
-        crossingAngle = obja.crossingAngle();
-        h11_crossingAngle->Fill(crossingAngle);
-        betaStar = obja.betaStar();
-        h12_betaStar->Fill(betaStar);
-
-        intensityForBeam1 = obja.intensityForBeam1();
-        h13_intensityB1->Fill(intensityForBeam1);
-        intensityForBeam2 = obja.intensityForBeam2();
-        h14_intensityB2->Fill(intensityForBeam2);
-        energy = obja.energy();
-        delivLumi = obja.delivLumi();
-        recLumi = obja.recLumi();
-        instLumi = obja.instLumi();
-        instLumiError = obja.instLumiError();
-
-        injectionScheme = obja.injectionScheme();
-
-        Size_lumiPerBX = obja.lumiPerBX().size();
-        for( unsigned int i  =  0; i < Size_lumiPerBX; i++ ){ 
-		lumiPerBX.push_back( obja.lumiPerBX()[i] ); 
-	}
-
-        lhcState = obja.lhcState();
-        lhcComment = obja.lhcComment();
-        ctppsStatus = obja.ctppsStatus();
-        lumiSection = obja.lumiSection();
+//        bunchesInBeam1 = obja.bunchesInBeam1();
+//        h4_numBunchesB1->Fill(bunchesInBeam1);
+//        bunchesInBeam2 = obja.bunchesInBeam2();
+//        h5_numBunchesB2->Fill(bunchesInBeam2);
+//        collidingBunches = obja.collidingBunches();
+//        h6_collidingBunches->Fill(collidingBunches);
+//        targetBunches = obja.targetBunches();
+//        h7_targetBunches->Fill(targetBunches);
+//
+//        fillType = obja.fillType();
+//        particleTypeForBeam1 = obja.particleTypeForBeam1();
+//        particleTypeForBeam2 = obja.particleTypeForBeam2();
+//        crossingAngle = obja.crossingAngle();
+//        h11_crossingAngle->Fill(crossingAngle);
+//        betaStar = obja.betaStar();
+//        h12_betaStar->Fill(betaStar);
+//
+//        intensityForBeam1 = obja.intensityForBeam1();
+//        h13_intensityB1->Fill(intensityForBeam1);
+//        intensityForBeam2 = obja.intensityForBeam2();
+//        h14_intensityB2->Fill(intensityForBeam2);
+//        energy = obja.energy();
+//        delivLumi = obja.delivLumi();
+//        recLumi = obja.recLumi();
+//        instLumi = obja.instLumi();
+//        instLumiError = obja.instLumiError();
+//
+//        injectionScheme = obja.injectionScheme();
+//
+//        Size_lumiPerBX = obja.lumiPerBX().size();
+//        for( unsigned int i  =  0; i < Size_lumiPerBX; i++ ){ 
+//		lumiPerBX.push_back( obja.lumiPerBX()[i] ); 
+//	}
+//
+//        lhcState = obja.lhcState();
+//        lhcComment = obja.lhcComment();
+//        ctppsStatus = obja.ctppsStatus();
+//        lumiSection = obja.lumiSection();
 
         Size_beam1VC = obja.beam1VC().size();
         for( unsigned int i  =  0; i < Size_beam1VC; i++ ){ beam1VC.push_back( obja.beam1VC()[i] ); }
         Size_beam2VC = obja.beam2VC().size();
         for( unsigned int i  =  0; i < Size_beam2VC; i++ ){ beam2VC.push_back( obja.beam2VC()[i] ); }       
-        Size_beam1RF = obja.beam1RF().size();
-        for( unsigned int i  =  0; i < Size_beam1RF; i++ ){ beam1RF.push_back( obja.beam1RF()[i] ); }
-        Size_beam2RF = obja.beam2RF().size();
-        for( unsigned int i  =  0; i < Size_beam2RF; i++ ){ beam2RF.push_back( obja.beam2RF()[i] ); }
+//        Size_beam1RF = obja.beam1RF().size();
+//        for( unsigned int i  =  0; i < Size_beam1RF; i++ ){ beam1RF.push_back( obja.beam1RF()[i] ); }
+//        Size_beam2RF = obja.beam2RF().size();
+//        for( unsigned int i  =  0; i < Size_beam2RF; i++ ){ beam2RF.push_back( obja.beam2RF()[i] ); }
 
-        is25nsBunchSpacing = obja.is25nsBunchSpacing();
-        Size_bunchConfigurationForBeam1 = obja.bunchConfigurationForBeam1().size();
-        for( unsigned int i  =  0; i < Size_bunchConfigurationForBeam1; i++ ){ bunchConfigurationForBeam1.push_back( obja.bunchConfigurationForBeam1()[i] ); }
-        Size_bunchConfigurationForBeam2 = obja.bunchConfigurationForBeam2().size();
-        for( unsigned int i  =  0; i < Size_bunchConfigurationForBeam2; i++ ){ bunchConfigurationForBeam2.push_back( obja.bunchConfigurationForBeam2()[i] ); }
+//        is25nsBunchSpacing = obja.is25nsBunchSpacing();
+//        Size_bunchConfigurationForBeam1 = obja.bunchConfigurationForBeam1().size();
+//        for( unsigned int i  =  0; i < Size_bunchConfigurationForBeam1; i++ ){ bunchConfigurationForBeam1.push_back( obja.bunchConfigurationForBeam1()[i] ); }
+//        Size_bunchConfigurationForBeam2 = obja.bunchConfigurationForBeam2().size();
+//        for( unsigned int i  =  0; i < Size_bunchConfigurationForBeam2; i++ ){ bunchConfigurationForBeam2.push_back( obja.bunchConfigurationForBeam2()[i] ); }
 
 	for( unsigned int i  =  0; i < Size_beam1VC; i++ ){
-		float phcor = (obja.beam1VC()[i]+obja.beam2VC()[i])*(2.5/360.0); 
-		phase.push_back(phcor*100);
-	//	std::cout << i << " " << eventCount << " " << phcor*100 << std::endl;
-		h26_bxPhase->Fill(i,eventCount,phcor*100); 
+		float phcor = ((obja.beam1VC()[i]+obja.beam2VC()[i])/2.0)*(2.5/360.0)*1000.0; 
+		phase.push_back(phcor);
+	//	std::cout << i << " " << eventCount << " " << phcor << std::endl;
+		if(eventCount%10) h26_bxPhase->Fill(i,eventCount,phcor); 
 	}
         h25_Phase->Fill(phase[bx]);
 
+	bxp5pc = phase[bx+5];
+        bxp4pc = phase[bx+4];
+        bxp3pc = phase[bx+3];
+        bxp2pc = phase[bx+2];
+        bxp1pc = phase[bx+1];
+        bx0pc = phase[bx];
+        bxm1pc = phase[bx-1];
+        bxm2pc = phase[bx-2];
+        bxm3pc = phase[bx-3];
+        bxm4pc = phase[bx-4];
+
+	if( bxp5pc != 0. ) h27_filledbx->Fill( 5.);
+        if( bxp4pc != 0. ) h27_filledbx->Fill( 4. );
+        if( bxp3pc != 0. ) h27_filledbx->Fill( 3. );
+        if( bxp2pc != 0. ) h27_filledbx->Fill( 2. );
+        if( bxp1pc != 0. ) h27_filledbx->Fill( 1. );
+        if( bx0pc != 0. ) h27_filledbx->Fill( 0. );
+        if( bxm1pc != 0. ) h27_filledbx->Fill( -1. );
+        if( bxm2pc != 0. ) h27_filledbx->Fill( -2. );
+        if( bxm3pc != 0. ) h27_filledbx->Fill( -3. );
+        if( bxm4pc != 0. ) h27_filledbx->Fill( -4. );
 
         tree->Fill();
 }
@@ -467,7 +517,7 @@ jwk_ana_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         run = iEvent.id().run();
         lumi = iEvent.luminosityBlock();
         event = iEvent.id().event();
-        bx = iEvent.bunchCrossing();
+        bx = iEvent.bunchCrossing() - 1;
 
 	eventCount++;	
 

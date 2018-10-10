@@ -180,6 +180,25 @@ process.GlobalTag = cms.ESSource("PoolDBESSource",
 #			),
 #		)
 #
+
+process.LHCInfoReader = cms.ESSource("PoolDBESSource",
+                DBParameters = cms.PSet(
+                        messageLevel = cms.untracked.int32(0),
+                        authenticationPath = cms.untracked.string('')
+                ),
+                toGet = cms.VPSet(
+                        cms.PSet(
+                                record = cms.string("LHCInfoRcd"),
+                                tag = cms.string("LHCInfoStartFillTest_v2")
+                        )
+                ),
+                connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')
+)
+
+process.lhcinfo_prefer = cms.ESPrefer("PoolDBESSource","LHCInfoReader")
+
+
+
 ## Process Digi To Raw Step
 process.digiStep = cms.Sequence(process.ecalDigis  + process.ecalPreshowerDigis)
 

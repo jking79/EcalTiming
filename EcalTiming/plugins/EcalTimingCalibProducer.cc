@@ -152,8 +152,8 @@ EcalTimingEvent EcalTimingCalibProducer::correctGlobalOffset(const EcalTimingEve
 
 EcalTimingEvent EcalTimingCalibProducer::correctRFphase(const EcalTimingEvent& te, float phCorr)
 {
-        float time = te.time() - phCorr;
-        return  EcalTimingEvent (EcalRecHit(id, te.energy(), time ));
+        float time = te.time() + phCorr;
+        return  EcalTimingEvent (EcalRecHit(te.detid(), te.energy(), time ));
 }
 
 // ------------ called for each event in the loop.  The present event loop can be stopped by return kStop ------------
@@ -189,7 +189,7 @@ bool EcalTimingCalibProducer::filter(edm::Event& iEvent, const edm::EventSetup& 
         int bx = iEvent.bunchCrossing();
 
 	//get LHCInfo pase correction for event
-	float rfphcorr = ((lhcInfo.beam1VC()[bx-1]+lhcInfo.beam2VC()[bx-1])/2.0)*(2.5/360.0);
+	float rfphcorr = ((lhcInfo->beam1VC()[bx-1]+lhcInfo->beam2VC()[bx-1])/2.0)*(2.5/360.0);
 
 	_eventTimeMap.clear(); // reset the map of time from recHits for this event
 
@@ -253,8 +253,10 @@ bool EcalTimingCalibProducer::filter(edm::Event& iEvent, const edm::EventSetup& 
 	// Add adjusted timeEvents to CorrectionsMap
 	for(auto const & it : _eventTimeMap) {
 		// if it is a splash event, set a global offset shift such that the time is coherent between different events
-		EcalTimingEvent tEvent = _isSplash ? correctGlobalOffset(it.second, splashDir, (bunchCorr-rfphcorr)) : correctRFphase(it.second, rfphcorr);
-                
+		//std::cout << "Before: " << it.second << " Change: " << rfphcorr << " ";
+		EcalTimingEvent tEvent = _isSplash ? correctGlobalOffset(it.second, splashDir, (bunchCorr+rfphcorr)) : correctRFphase(it.second, rfphcorr);
+		//std::cout << "After: " << tEvent << std::endl;                
+
                 unsigned int elecID = getElecID(tEvent.detid());
                 int iRing = _ringTools.getRingIndexInSubdet(tEvent.detid());
                 if( _saveTimingEvents) {

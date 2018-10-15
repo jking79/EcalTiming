@@ -38,6 +38,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include <iterator>
 #include <iostream>
 #include <fstream>
@@ -79,6 +81,8 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
       virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
+
+	edm::EDGetTokenT<EcalTimingCollection> _timingEvents; ///< input collection
 
 			typedef int FillTypeId;
 			typedef int ParticleTypeId;
@@ -195,7 +199,7 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 //                        TH1F *h23_SizeBC1;
 //                        TH1F *h24_SizeBC2;
 			TH1F *h25_Phase;
-			TH2F *h26_bxPhase;
+			TH1I *h26_bxOcc;
 			TH1F *h27_filledbx;
 
 };
@@ -211,7 +215,8 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 //
 // constructors and destructor
 //
-jwk_ana_lhcDump::jwk_ana_lhcDump(const edm::ParameterSet& iConfig)
+jwk_ana_lhcDump::jwk_ana_lhcDump(const edm::ParameterSet& iConfig) :
+	_timingEvents(consumes<EcalTimingCollection>(iConfig.getParameter<edm::InputTag>("timingCollection")))
 {
    //now do what ever initialization is needed
 
@@ -377,8 +382,8 @@ void jwk_ana_lhcDump::initRoot()
 //        h22_SizeVC2 =           new TH1F("h22_SizeVC2","Beam2VC BX",bins,since,till);
 //        h23_SizeBC1 =           new TH1F("h23_SizeBC1","BunchConfig BX",bins,since,till);
 //        h24_SizeBC2 =           new TH1F("h24_SizeBC2","BunchConfig BX",bins,since,till);
-	h25_Phase = 		new TH1F("h25_Phase","Phase Correction",2000,-100,100);
-	h26_bxPhase = 		new TH2F("h26_bxPhase","Phase Correction by BX", 3564,0,3564,10000,0,10000 );
+	h25_Phase = 		new TH1F("h25_Phase","Phase Correction",1000,-50,50);
+	h26_bxOcc = 		new TH1I("h26_bxOcc","BX Occupancy", 3564,0,3564 );
 	h27_filledbx = 		new TH1F("h27_FilledBX","Filled BXs",12,-5,6);
 
 //      lumiPerBX.clear();
@@ -407,7 +412,7 @@ void jwk_ana_lhcDump::closeRoot()
 //         h13_intensityB1->Write();
 //         h14_intensityB2->Write();
          h25_Phase->Write();
-         h26_bxPhase->Write();
+         h26_bxOcc->Write();
 	 h27_filledbx->Write(); 
 
 	tfile->Write();
@@ -480,9 +485,10 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja )
 		float phcor = ((obja.beam1VC()[i]+obja.beam2VC()[i])/2.0)*(2.5/360.0)*1000.0; 
 		phase.push_back(phcor);
 	//	std::cout << i << " " << eventCount << " " << phcor << std::endl;
-		if(eventCount%10) h26_bxPhase->Fill(i,eventCount,phcor); 
+	//	if(eventCount%10) h26_bxPhase->Fill(i,eventCount,phcor); 
 	}
         h25_Phase->Fill(phase[bx]);
+	h26_bxOcc->Fill(bx);	
 
 	bxp5pc = phase[bx+5];
         bxp4pc = phase[bx+4];
@@ -521,11 +527,15 @@ jwk_ana_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	eventCount++;	
 
-	std::cout << "Event count : " << eventCount << std::endl;
+//	std::cout << "Event count : " << eventCount << std::endl;
 
         edm::ESHandle<LHCInfo> lhcInfoHnd;
         iSetup.get<LHCInfoRcd>().get(lhcInfoHnd);
 
+	edm::Handle<EcalTimingCollection> timingCollection;
+	iEvent.getByToken(_timingEvents, timingCollection);
+
+	for(auto  timeEvent : *timingCollection) {}
 
         if(!lhcInfoHnd.isValid()) {
                 std::cout << "LHCInfo not found?\n";

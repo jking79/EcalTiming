@@ -59,8 +59,13 @@ $tempBjob = $jobDir."/bjob.sh" ;
 $LISTOFFiles = "./list_files_tmp.txt" ;
 for($index=0;$index<=$#runs;$index++)
 {
-    system ("eos find -f ".$INPUTDir."/".$runs[$index]."/ | grep .root >> ".$LISTOFFiles."\n") ;
+    #system ("eos find -f ".$INPUTDir."/".$runs[$index]."/ | grep .root >> ".$LISTOFFiles."\n") ;
+    system ("find ".$INPUTDir."/".$runs[$index]."/ | grep .root >> ".$LISTOFFiles."\n") ;
 }
+
+system ( "ls ".$LISTOFFiles."\n");
+
+print "Created LISTOFFiles \n";
 
 $JOBLISTOFFiles;
 
@@ -72,10 +77,11 @@ while (<LISTOFFiles>)
     s/^\s+//;               # no leading white
     s/\s+$//;               # no trailing white
     $file = $_ ;
-    $remove = "/eos/cms";
-    $file  =~ s/$remove// ;
+#    $remove = "/eos/cms";
+#    $file  =~ s/$remove// ;
     
-    $JOBLISTOFFiles = $JOBLISTOFFiles."root://eoscms.cern.ch/".$file.",";
+#    $JOBLISTOFFiles = $JOBLISTOFFiles."root://eoscms.cern.ch/".$file.",";
+    $JOBLISTOFFiles = $JOBLISTOFFiles.$file.",";
 }
 
 chop $JOBLISTOFFiles;
@@ -100,6 +106,9 @@ $OUTDir =~ s/,/_/g ;
 # make job files
 ######################    
     
+$command = "export X509_USER_PROXY ".$X509_USER_PROXY ;
+print SAMPLEJOBFILE $command."\n";
+
 open (SAMPLEJOBFILE, ">", $tempBjob) or die "Can't open file ".$tempBjob;
 
 $command = "#!/bin/tcsh" ;
@@ -120,19 +129,23 @@ print SAMPLEJOBFILE $command."\n";
 $command = "EcalTimingCalibration EcalTimingCalibration_cfg.py" ;
 print SAMPLEJOBFILE $command."\n";  
 
-$command = "eos mkdir ".$OUTDir;
+#$command = "eos mkdir ".$OUTDir;
+$command = "mkdir ".$OUTDir;
 print SAMPLEJOBFILE $command."\n";         
         
 $command = "cd output" ;
 print SAMPLEJOBFILE $command."\n";
 
-$command = "cp ecalTiming.dat /eos/cms/".$OUTDir."/";
+#$command = "cp ecalTiming.dat /eos/cms/".$OUTDir."/";
+$command = "cp ecalTiming.dat ".$OUTDir."/";
 print SAMPLEJOBFILE $command."\n";
 
-$command = "cp ecalTiming-corr.dat /eos/cms/".$OUTDir."/";
+#$command = "cp ecalTiming-corr.dat /eos/cms/".$OUTDir."/";
+$command = "cp ecalTiming-corr.dat ".$OUTDir."/";
 print SAMPLEJOBFILE $command."\n";
 
-$command = "cp ecalTiming.root /eos/cms/".$OUTDir."/";
+#$command = "cp ecalTiming.root /eos/cms/".$OUTDir."/";
+$command = "cp ecalTiming.root ".$OUTDir."/";
 print SAMPLEJOBFILE $command."\n";
 	
 ############

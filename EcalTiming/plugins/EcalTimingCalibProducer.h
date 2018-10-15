@@ -216,7 +216,7 @@ private:
 	/// so that the upstream endcap is 0.
 	///
 	EcalTimingEvent correctGlobalOffset(const EcalTimingEvent& ev, int splashDir, float bunchCorr);
-	EcalTimingEvent correctRFphase(const EcalTimingEvent& te, float phCorr)
+	EcalTimingEvent correctRFphase(const EcalTimingEvent& te, float phCorr);
 
 	unsigned int getElecID(DetId id)
 	{

@@ -189,7 +189,7 @@ bool EcalTimingCalibProducer::filter(edm::Event& iEvent, const edm::EventSetup& 
         int bx = iEvent.bunchCrossing();
 
 	//get LHCInfo pase correction for event
-	float rfphcorr = ((lhcInfo->beam1VC()[bx-1]+lhcInfo->beam2VC()[bx-1])/2.0)*(2.5/360.0);
+	float rfphcorr = ((lhcInfo->beam1VC()[bx-1]-lhcInfo->beam2VC()[bx-1])/1.0)*(2.5/360.0);
 
 	_eventTimeMap.clear(); // reset the map of time from recHits for this event
 

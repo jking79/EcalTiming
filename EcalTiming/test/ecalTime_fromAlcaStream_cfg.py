@@ -85,7 +85,7 @@ else:
 
 #options.files = cms.untracked.vstring
 #options.streamName = cms.untracked.vstring
-options.maxEvents = -1 means all events
+options.maxEvents = -1 # -1 means all events
 ### get and parse the command line arguments
 options.parseArguments()
 print options

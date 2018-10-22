@@ -42,6 +42,8 @@
 #include "EcalTiming/EcalTiming/interface/EcalTimingEvent.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <iterator>
 #include <iostream>
@@ -107,6 +109,10 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
                         unsigned int bx;
 
                         unsigned int detid;
+			unsigned int ix;
+			unsigned int iy;
+                        unsigned int iz;
+
                         float time;
                         float energy;
 
@@ -207,19 +213,7 @@ std::string jwk_ana_lhcDump::timeToString(time_t t)
         buf[sizeof(buf)-1] = 0;
         std::string ret(buf);
         ret = findAndReplaceAll( ret, " ", "_" );
-//        size_t pos = ret.find(space);
-//        while( pos != std::string::npos)
-//       {
-//                ret.replace(pos, space.size(), underline);
-//                pos = ret.find(space, pos + space.size());
-//        }
         ret = findAndReplaceAll( ret, ":", "_" );
-//        pos = ret.find(colon);
-//        while( pos != std::string::npos)
-//        {
-//                ret.replace(pos, colon.size(), underline);
-//                pos = ret.find(colon, pos + colon.size());
-//       }
 	return ret;
 }
 
@@ -249,6 +243,10 @@ void jwk_ana_lhcDump::initRoot()
         tree->Branch("bx",              	&bx,            	"bx/i");
 
         tree->Branch("detid",                   &detid,                  "detid/i");
+	tree->Branch("ix", 			&ix, 			 "ix/I");
+	tree->Branch("iy", 			&iy,			 "iy/I");
+	tree->Branch("iz", 			&iz,			 "iz/I");
+
         tree->Branch("time",                    &time,                   "time/f");
         tree->Branch("energy",                  &energy,                 "energy/f");
 
@@ -280,7 +278,7 @@ void jwk_ana_lhcDump::initRoot()
 	h25_Phase =		new TH1F("h25_Phase","Phase Correction",1000,-50,50);
 
 	h26_bxOcc = 		new TH1I("h26_bxOcc","BX Occupancy", 3564,0,3564 );
-	h27_filledbx = 		new TH1F("h27_FilledBX","Filled BXs",12,-6,6);
+	h27_filledbx = 		new TH1F("h27_FilledBX","Filled BXs",13,-6.5,6.5);
 
         std::cout << "Tree created" << std::endl;
 }
@@ -303,10 +301,25 @@ void jwk_ana_lhcDump::closeRoot()
 void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 {
 
+	int _EcalBarrel(1);
 
         fillNumber = obja.fillNumber();
 
 	detid = rechit.detid().rawId();
+	if( rechit.detid().subdetId() == _EcalBarrel ) {
+        	EBDetId id(rechit.detid());
+		ix = id.ieta();
+		iy = id.iphi();
+		iz = 0;
+        //dumpTimingEventToTree(timingEventsTree, tEvent, id.rawId(), id.ieta(), id.iphi(), 0, elecID, iRing, run, lumi, event, bx);
+        } else {
+        	EEDetId id(rechit.detid());
+                ix = id.ix();
+                iy = id.iy();
+                iz = id.zside();
+        //dumpTimingEventToTree(timingEventsTree, tEvent, id.rawId(), id.ix(), id.iy(), id.zside(), elecID, iRing, run, lumi, event, bx);
+        }
+
 	time = rechit.time();
 	energy = rechit.energy();
 
@@ -338,14 +351,11 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 
 	for( unsigned int i  =  0; i < obja.beam1VC().size(); i++ ){
 //        for( unsigned int i  = bx-4; i <= bx+5; i++ ){
-		phcor = ((obja.beam1VC()[i]+obja.beam2VC()[i])/2.0)*(2.5/360.0); 
-		ave.push_back(phcor);
-		phcor = (obja.beam1VC()[i]-obja.beam2VC()[i])*(2.5/360.0);
-		dif.push_back(phcor);
-		phcor = (obja.beam2VC()[i])*(2.5/360.0);
-		vc2.push_back(phcor);	
+		ave.push_back(((obja.beam1VC()[i]+obja.beam2VC()[i])/2.0)*(2.5/360.0));
+		dif.push_back((obja.beam1VC()[i]-obja.beam2VC()[i])*(2.5/360.0));
+		vc2.push_back((obja.beam2VC()[i])*(2.5/360.0));	
 	
-		if( phcor == 0.0 ) {
+		if( obja.beam1VC()[i] == 0.0 ) {
 			if( first_zero == true ) {
 				first_zero = false;
 				first_notzero = true;
@@ -381,9 +391,9 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
         dif_phase = dif[bx];
         vc2_phase = vc2[bx];
 
-	h23_bPhase->Fill(vc2_phase);
-	h24_dPhase->Fill(dif_phase);
-        h25_Phase->Fill(ave_phase);
+	h23_bPhase->Fill(vc2_phase*1000);
+	h24_dPhase->Fill(dif_phase*1000);
+        h25_Phase->Fill(ave_phase*1000);
 	h26_bxOcc->Fill(bx);	
 
 	bxp5pc = ave[bx+5];

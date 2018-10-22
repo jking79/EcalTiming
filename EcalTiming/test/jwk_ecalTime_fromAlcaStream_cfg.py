@@ -85,8 +85,8 @@ else:
 
 #options.files = cms.untracked.vstring
 #options.streamName = cms.untracked.vstring
-#options.maxEvents = -1 # -1 means all events
-options.maxEvents = 1000000 # use 500 for jwk_ana_lhcInfoDump
+options.maxEvents = -1 # -1 means all events
+#options.maxEvents = 100000 # use 500 for jwk_ana_lhcInfoDump
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -364,6 +364,7 @@ if doAnalysis:
 	process.timing.energyThresholdOffsetEE = cms.double(options.minEnergyEE)
 	process.timing.storeEvents = cms.bool(True)
 	process.analysis = cms.Sequence( process.timing )
+	process.timing.ph_sign_corr = cms.double(0.0)
 
 process.load('EcalTiming.EcalTiming.EcalTimingSequence_cff')
 if doReco:
@@ -376,10 +377,10 @@ if doReco:
 
 process.seq = cms.Sequence()
 if doReco:
-#	process.seq += process.reco
+	process.seq += process.reco
 	process.seq += process.my_process
-#if doAnalysis:
-#	process.seq += process.analysis
+if doAnalysis:
+	process.seq += process.analysis
 else:
 	process.endp = cms.EndPath(process.RECOoutput)
 

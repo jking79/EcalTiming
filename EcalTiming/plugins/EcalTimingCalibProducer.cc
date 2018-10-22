@@ -48,6 +48,7 @@ EcalTimingCalibProducer::EcalTimingCalibProducer(const edm::ParameterSet& iConfi
 	_produceNewCalib(iConfig.getParameter<bool>("produceNewCalib")),
 	_outputDumpFileName(iConfig.getParameter<std::string>("outputDumpFile")),
 	_maxSkewnessForDump(iConfig.getParameter<double>("maxSkewnessForDump")),
+        _ph_corr_sign(iConfig.getParameter<double>("ph_corr_sign")),
 	_ringTools(EcalRingCalibrationTools())
 {
 }
@@ -189,7 +190,10 @@ bool EcalTimingCalibProducer::filter(edm::Event& iEvent, const edm::EventSetup& 
         int bx = iEvent.bunchCrossing();
 
 	//get LHCInfo pase correction for event
-	float rfphcorr = ((lhcInfo->beam1VC()[bx-1]-lhcInfo->beam2VC()[bx-1])/1.0)*(2.5/360.0);
+	//for average
+	float rfphcorr = _ph_corr_sign*((lhcInfo->beam1VC()[bx-1]+lhcInfo->beam2VC()[bx-1])/2.0)*(2.5/360.0);
+	//for diffrence
+	//float rfphcorr = _ph_corr_sign*((lhcInfo->beam1VC()[bx-1]-lhcInfo->beam2VC()[bx-1])/1.0)*(2.5/360.0);	
 
 	_eventTimeMap.clear(); // reset the map of time from recHits for this event
 

@@ -1,10 +1,10 @@
 import os, re, sys, optparse, commands, shutil, imp
 import math, ROOT
 
-infolder = '_minusAve'
+infolder = 'plusDiff_'
 
 prehistfile =  '/afs/cern.ch/user/j/jaking/private/ecal/CMSSW_10_1_7/src/EcalTiming/EcalTiming/lxbatch/320688_Calib/output/ecalTiming.root'
-posthistfile = '/afs/cern.ch/user/j/jaking/private/ecal/Jacks_Working/CMSSW_10_3_0_pre2/src/EcalTiming/EcalTiming/320688' + infolder + '/ecalTiming.root' 
+posthistfile = '/afs/cern.ch/user/j/jaking/private/ecal/Jacks_Working/CMSSW_10_3_0_pre2/src/EcalTiming/EcalTiming/' + infolder + '320688/ecalTiming.root' 
 
 histstring = infolder + '_Ratio'
 inputfileList = ['BXTimeEEM', 'BXTimeEEP', 'BXTimeEB']

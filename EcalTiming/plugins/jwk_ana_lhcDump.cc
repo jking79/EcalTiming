@@ -120,6 +120,7 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 			int train_count;
                         int long_train_count;
 			int train_number;
+                        int long_train_number;
 
 			unsigned long		eventCount;
         		unsigned int		fillNumber;
@@ -252,7 +253,9 @@ void jwk_ana_lhcDump::initRoot()
 
         tree->Branch("pre_zero_len",            &pre_zero_len,           "pre_zero_len/i");
         tree->Branch("train_count",             &train_count,            "train_count/i");
-        tree->Branch("long_train_count",             &long_train_count,            "long_train_count/i");
+        tree->Branch("long_train_count",        &long_train_count,       "long_train_count/i");
+        tree->Branch("train_number",            &train_number,           "train_number/i");
+        tree->Branch("long_train_number",            &long_train_number,           "long_train_number/i");
 
         tree->Branch("fillNumber",          	&fillNumber,          	"fillNumber/i");
 
@@ -326,10 +329,11 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 	bool first_zero( true );
 	bool first_notzero( true );
 	unsigned int zero(0);
-        unsigned int count(0);
-	unsigned int notzero(0);
+        unsigned int notzero(0);
 	unsigned int longnotzero(0);
-	float phcor(0.0);
+        unsigned int count(0);
+	unsigned int longcount(0);
+//	float phcor(0.0);
 
         std::vector<float>  ave;
         std::vector<float>  dif;
@@ -343,11 +347,13 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 	std::vector<unsigned int> train_notzero;
         std::vector<unsigned int> long_train_notzero;
         std::vector<unsigned int> train;
+        std::vector<unsigned int> long_train;
 
 	train_zero.clear();
-        train.clear();
 	train_notzero.clear();
-        long_train_notzero.clear();
+	long_train_notzero.clear();
+        train.clear();
+        long_train.clear();
 
 	for( unsigned int i  =  0; i < obja.beam1VC().size(); i++ ){
 //        for( unsigned int i  = bx-4; i <= bx+5; i++ ){
@@ -368,7 +374,10 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 				first_notzero = false;
 				first_zero = true;
 				notzero = 0;
-				if( zero > 100 ) longnotzero = 0;
+				if( zero > 10 ){ 
+					longnotzero = 0;
+					longcount++;
+				}
 				count++;		
 			}
 			notzero++;
@@ -378,14 +387,19 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 		train_notzero.push_back(notzero);
 		long_train_notzero.push_back(longnotzero);
 		train.push_back(count);
-	//	std::cout << i << " " << eventCount << " " << phcor << " " << zero << " " << notzero << std::endl;
-	//	if(eventCount%10) h26_bxPhase->Fill(i,eventCount,phcor); 
+		long_train.push_back(longcount);
+
+//		std::cout << "BX: " << i << " Event: " << eventCount; 
+//		std::cout << " Train #: " << count << " LongTrian #: " << longcount; 
+//		std::cout << " Zero: " << zero << " !Zero: " << notzero << " Long!Zero: " << longnotzero << std::endl;
+//	//	if(eventCount%10) h26_bxPhase->Fill(i,eventCount,phcor); 
 	}
 
         pre_zero_len = train_zero[bx];
         train_count = train_notzero[bx];
 	long_train_count = long_train_notzero[bx];
 	train_number = train[bx];
+	long_train_number = long_train[bx];
 
 	ave_phase = ave[bx];
         dif_phase = dif[bx];

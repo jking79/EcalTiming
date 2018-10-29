@@ -115,6 +115,7 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 
                         float time;
                         float energy;
+                        float instlumi;
 
 			int pre_zero_len;
 			int train_count;
@@ -250,12 +251,13 @@ void jwk_ana_lhcDump::initRoot()
 
         tree->Branch("time",                    &time,                   "time/f");
         tree->Branch("energy",                  &energy,                 "energy/f");
+        tree->Branch("instlumi",                &instlumi,               "instlumi/f");
 
         tree->Branch("pre_zero_len",            &pre_zero_len,           "pre_zero_len/i");
         tree->Branch("train_count",             &train_count,            "train_count/i");
         tree->Branch("long_train_count",        &long_train_count,       "long_train_count/i");
         tree->Branch("train_number",            &train_number,           "train_number/i");
-        tree->Branch("long_train_number",            &long_train_number,           "long_train_number/i");
+        tree->Branch("long_train_number",       &long_train_number,      "long_train_number/i");
 
         tree->Branch("fillNumber",          	&fillNumber,          	"fillNumber/i");
 
@@ -296,7 +298,8 @@ void jwk_ana_lhcDump::closeRoot()
 	 h25_Phase->Write();
          h26_bxOcc->Write();
 	 h27_filledbx->Write(); 
-
+	 tree->Write("", TObject::kOverwrite);
+	 
 	 tfile->Write();
          tfile->Close();
 }
@@ -307,6 +310,7 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 	int _EcalBarrel(1);
 
         fillNumber = obja.fillNumber();
+	instlumi = obja.instLumi();
 
 	detid = rechit.detid().rawId();
 	if( rechit.detid().subdetId() == _EcalBarrel ) {

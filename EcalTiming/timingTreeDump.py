@@ -2,8 +2,21 @@ import os, re, sys, optparse, commands, shutil, imp
 import math, ROOT
 
 infolder = ''
-rootfile = 'dump_LHCInfo_Event_2018-10-23_20_24_39.root'
-outfile = 'hist_LHCInfo_Event_2018-10-23_20_24_39.root'
+#rootfile = 'dump_LHCInfo_320688_2018-10-26_EC5.root'
+#outfile = 'hist_LHCInfo_320688_2018-10-26_EC5.root'
+#rootfile = 'dump_LHCInfo_320688_2018-10-29_F4C.root'
+#outfile = 'hist_LHCInfo_320688_2018-10-29_F4C.root'
+#rootfile = 'dump_LHCInfo_320688_2018-10-30_0ED.root'
+#outfile = 'hist_LHCInfo_320688_2018-10-30_0ED.root'
+rootfile = 'dump_LHCInfo_324998_2018-10-31_656.root'
+outfile = 'hist_LHCInfo_324998_2018-10-31_656.root'
+
+#-rw-r--r--. 1 jaking zh 209200348 Oct 29 22:48 dump_LHCInfo_320688_2018-10-29_F4C.root
+#-rw-r--r--. 1 jaking zh 226300005 Oct 30 23:06 dump_LHCInfo_320688_2018-10-30_0ED.root
+#-rw-r--r--. 1 jaking zh 184266975 Oct 31 03:50 dump_LHCInfo_324998_2018-10-31_656.root
+#-rw-r--r--. 1 jaking zh 219835015 Oct 26 22:50 dump_LHCInfo_320688_2018-10-26_EC5.root
+#-rw-r--r--. 1 jaking zh 209200348 Oct 29 22:48 dump_LHCInfo_320688_2018-10-29_F4C.root
+#-rw-r--r--. 1 jaking zh 226300005 Oct 30 23:06 dump_LHCInfo_320688_2018-10-30_0ED.root
 
 prehistfile =  '/afs/cern.ch/user/j/jaking/private/ecal/CMSSW_10_1_7/src/EcalTiming/EcalTiming/lxbatch/320688_Calib/output/ecalTiming.root'
 filedir = '/afs/cern.ch/user/j/jaking/private/ecal/Jacks_Working/CMSSW_10_3_0_pre2/src/EcalTiming/EcalTiming/' 
@@ -15,6 +28,16 @@ trainLength = 150
 subtrainLength = 50
 nSigma = 2.0
 maxRange = 10
+
+# set to -1 for do all
+maxEvent = -1
+
+def maxval( timelist):
+
+	maxtime = 0
+	for time in timelist:
+		if time > maxtime : time = maxtime
+	return maxtime
 
 def getMeanWithinNSigma( timelist ):
 
@@ -38,7 +61,8 @@ def getMeanWithinNSigma( timelist ):
                         sumWsig = sumWsig + time
 			sum2Wsig = sum2Wsig + time*time
                         numWsig = numWsig + 1
-	
+
+        if( not numWsig ): return [0.0,0.0]	
 	meanWsig = sumWsig / numWsig
 	stdevWsig = math.sqrt( sum2Wsig / numWsig - meanWsig * meanWsig )
 	errorWsig = stdevWsig / math.sqrt( numWsig )
@@ -57,16 +81,47 @@ def parseTree( inTreeFile ):
   EBbxlist = []
   lt_EBbxlist = []
   t_EBbxlist = []
+  EBbxlist4 = []
+  lt_EBbxlist4 = []
+  t_EBbxlist4 = []
+  EBbxlist8 = []
+  lt_EBbxlist8 = []
+  t_EBbxlist8 = []
+  EBbxlist12 = []
+  lt_EBbxlist12 = []
+  t_EBbxlist12 = []
   EEMbxlist = []
+  lt_EEMbxlist = []
+  t_EEMbxlist = []
   EEPbxlist = []
+  lt_EEPbxlist = []
+  t_EEPbxlist = []
+
   for ibx in xrange(bunchSlots):
 	EBbxlist.append([])
         EEMbxlist.append([])
         EEPbxlist.append([])
+  	EBbxlist4.append([])
+  	EBbxlist8.append([])
+  	EBbxlist12.append([])
   for ibx in xrange(trainLength):
         lt_EBbxlist.append([])
+        lt_EEMbxlist.append([])
+        lt_EEPbxlist.append([])
+        lt_EBbxlist4.append([])
+        lt_EBbxlist8.append([])
+        lt_EBbxlist12.append([])
   for ibx in xrange(subtrainLength):
         t_EBbxlist.append([])
+        t_EEMbxlist.append([])
+        t_EEPbxlist.append([])
+        t_EBbxlist4.append([])
+        t_EBbxlist8.append([])
+        t_EBbxlist12.append([])
+
+  count = 0
+
+  lt_BXSpreadEB_list = []
 
   BXTimeEB = ROOT.TH1F("BXTimeEB",  "Mean BX Time[ns] EB; BX;Time[ns]",bunchSlots,0,bunchSlots);
   lt_BXTimeEB = ROOT.TH1F("lt_BXTimeEB",  "Mean Train_BX Time[ns] EB; Trian Position;Time[ns]",trainLength,0,trainLength);
@@ -77,12 +132,29 @@ def parseTree( inTreeFile ):
   BXTimeEEP = ROOT.TH1F("BXTimeEEP", "Mean BX Time[ns] EE+;BX; Time[ns]",bunchSlots,0,bunchSlots);
   lt_BXTimeEEP = ROOT.TH1F("lt_BXTimeEEP",  "Mean Train_BX Time[ns] EE+; Trian Position;Time[ns]",trainLength,0,trainLength);
   t_BXTimeEEP = ROOT.TH1F("t_BXTimeEEP",  "Mean Subtrain_BX Time[ns] EE+; Subtrian Position;Time[ns]",subtrainLength,0,subtrainLength);
+
+  BXTimeEB_4ifbs = ROOT.TH1F("BXTimeEB_4ifbs",  "Mean BX Time[ns] EB instLumi>4/pb; BX;Time[ns]",bunchSlots,0,bunchSlots);
+  lt_BXTimeEB_4ifbs = ROOT.TH1F("lt_BXTimeEB_4ifbs",  "Mean Train_BX Time[ns] EB instLumi>4/pb; Trian Position;Time[ns]",trainLength,0,trainLength);
+  t_BXTimeEB_4ifbs = ROOT.TH1F("t_BXTimeEB_4ifbs",  "Mean Subtrain_BX Time[ns] EB EB instLumi>4/pb; Subtrian Position;Time[ns]",subtrainLength,0,subtrainLength);
+
+  BXTimeEB_8ifbs = ROOT.TH1F("BXTimeEB_8ifbs",  "Mean BX Time[ns] EB instLumi>8/pb; BX;Time[ns]",bunchSlots,0,bunchSlots);
+  lt_BXTimeEB_8ifbs = ROOT.TH1F("lt_BXTimeEB_8ifbs",  "Mean Train_BX Time[ns] EB instLumi>8/pb; Trian Position;Time[ns]",trainLength,0,trainLength);
+  t_BXTimeEB_8ifbs = ROOT.TH1F("t_BXTimeEB_8ifbs",  "Mean Subtrain_BX Time[ns] EB EB instLumi>8/pb; Subtrian Position;Time[ns]",subtrainLength,0,subtrainLength);
+
+  BXTimeEB_12ifbs = ROOT.TH1F("BXTimeEB_12ifbs",  "Mean BX Time[ns] EB instLumi>12/pb; BX;Time[ns]",bunchSlots,0,bunchSlots);
+  lt_BXTimeEB_12ifbs = ROOT.TH1F("lt_BXTimeEB_12ifbs",  "Mean Train_BX Time[ns] EB instLumi>12/pb; Trian Position;Time[ns]",trainLength,0,trainLength);
+  t_BXTimeEB_12ifbs = ROOT.TH1F("t_BXTimeEB_12ifbs",  "Mean Subtrain_BX Time[ns] EB EB instLumi>12/pb; Subtrian Position;Time[ns]",subtrainLength,0,subtrainLength);
+
+  lt_BXSpread2dEB =  ROOT.TH2F("lt_BXSpread2dEB","BX Time Distro EB; Trian Position;Time[ns]",trainLength,0,trainLength,1000,-5.0,5.0);
   
   print( "Parsing Tree" )
-  nEvent = tree.GetEntries()
-  for iEvent in xrange( nEvent ):
+  nEntry = tree.GetEntries()
+  for iEntry in xrange( nEntry ):
 	
-	tree.GetEntry(iEvent)
+	count += 1
+	if( maxEvent > 0 and count > maxEvent ) : break
+
+	tree.GetEntry(iEntry)
 	
 	run = tree.run
 	lumi = tree.lumi
@@ -96,6 +168,7 @@ def parseTree( inTreeFile ):
 
 	time = tree.time
 	energy = tree.energy
+	instlumi = tree.instlumi
 
 	pre_zero_len = tree.pre_zero_len
 	train_count = tree.train_count
@@ -124,49 +197,123 @@ def parseTree( inTreeFile ):
 
 	if(iz == 0): 
 		EBbxlist[bx].append(time)
-		lt_EBbxlist[long_train_count].append(time)	
+                lt_EBbxlist[long_train_count].append(time)
                 t_EBbxlist[train_count].append(time)
+        	if( instlumi > 4 ):
+        		EBbxlist4[bx].append(time)
+                	lt_EBbxlist4[long_train_count].append(time)
+                	t_EBbxlist4[train_count].append(time)
+        	if( instlumi > 8 ):
+        		EBbxlist8[bx].append(time)
+                	lt_EBbxlist8[long_train_count].append(time)
+                	t_EBbxlist8[train_count].append(time)
+        	if( instlumi > 12 ):
+        		EBbxlist12[bx].append(time)
+                	lt_EBbxlist12[long_train_count].append(time)
+                	t_EBbxlist12[train_count].append(time)
         if(iz < 0): 
 		EEMbxlist[bx].append(time)
+                lt_EEMbxlist[long_train_count].append(time)
+                t_EEMbxlist[train_count].append(time)
         if(iz > 0): 
 		EEPbxlist[bx].append(time)
+                lt_EEPbxlist[long_train_count].append(time)
+                t_EEPbxlist[train_count].append(time)
 
 
 	#   end of loop
 
+#  for ibx in xrange(bunchSlots):
+	
   print( "Filling Histograms" )
   for ibx in xrange(bunchSlots):
 	r = getMeanWithinNSigma(EBbxlist[ibx])
 	BXTimeEB.SetBinContent( ibx, r[0] )
 	BXTimeEB.SetBinError( ibx, r[1] )
+        
         r = getMeanWithinNSigma(EEMbxlist[ibx])
-	BXTimeEEM.SetBinContent( ibx, r[0] )
+        BXTimeEEM.SetBinContent( ibx, r[0] )
         BXTimeEEM.SetBinError( ibx, r[1] )
+        
         r = getMeanWithinNSigma(EEPbxlist[ibx])
         BXTimeEEP.SetBinContent( ibx, r[0] )
         BXTimeEEP.SetBinError( ibx, r[1] )
 
+#	if( instlumi > 4 ):
+        r = getMeanWithinNSigma(EBbxlist4[ibx])
+	BXTimeEB_4ifbs.SetBinContent( ibx, r[0] )
+        BXTimeEB_4ifbs.SetBinError( ibx, r[1] )
+#        if( instlumi > 8 ):
+        r = getMeanWithinNSigma(EBbxlist8[ibx])
+        BXTimeEB_8ifbs.SetBinContent( ibx, r[0] )
+        BXTimeEB_8ifbs.SetBinError( ibx, r[1] )
+#        if( instlumi > 12 ):
+        r = getMeanWithinNSigma(EBbxlist12[ibx])
+        BXTimeEB_12ifbs.SetBinContent( ibx, r[0] )
+        BXTimeEB_12ifbs.SetBinError( ibx, r[1] )
+
+
   for ibx in xrange(trainLength):
+
+	title = "BXTimeEB_lt" + str(ibx)
+	lt_BXSpreadEB =  ROOT.TH1F(title,"BX Time Distro for trian position: "+str(ibx)+" EB;Time[ns];",1000,-5.0,5.0);
+	for etime in lt_EBbxlist[ibx] :
+		lt_BXSpreadEB.Fill( etime )
+                lt_BXSpread2dEB.Fill( ibx, etime )
+	lt_BXSpreadEB_list.append( lt_BXSpreadEB )
+		
         r = getMeanWithinNSigma(lt_EBbxlist[ibx])
         lt_BXTimeEB.SetBinContent( ibx, r[0] )
         lt_BXTimeEB.SetBinError( ibx, r[1] )
-        r = getMeanWithinNSigma(EEMbxlist[ibx])
+
+        r = getMeanWithinNSigma(lt_EEMbxlist[ibx])
         lt_BXTimeEEM.SetBinContent( ibx, r[0] )
         lt_BXTimeEEM.SetBinError( ibx, r[1] )
-        r = getMeanWithinNSigma(EEPbxlist[ibx])
+
+        r = getMeanWithinNSigma(lt_EEPbxlist[ibx])
         lt_BXTimeEEP.SetBinContent( ibx, r[0] )
         lt_BXTimeEEP.SetBinError( ibx, r[1] )
+
+#       if( instlumi > 4 ):
+        r = getMeanWithinNSigma(lt_EBbxlist4[ibx])
+        lt_BXTimeEB_4ifbs.SetBinContent( ibx, r[0] )
+        lt_BXTimeEB_4ifbs.SetBinError( ibx, r[1] )
+#        if( instlumi > 8 ):
+        r = getMeanWithinNSigma(lt_EBbxlist8[ibx])
+        lt_BXTimeEB_8ifbs.SetBinContent( ibx, r[0] )
+        lt_BXTimeEB_8ifbs.SetBinError( ibx, r[1] )
+#        if( instlumi > 12 ):
+        r = getMeanWithinNSigma(lt_EBbxlist12[ibx])
+        lt_BXTimeEB_12ifbs.SetBinContent( ibx, r[0] )
+        lt_BXTimeEB_12ifbs.SetBinError( ibx, r[1] )
 
   for ibx in xrange(subtrainLength):
         r = getMeanWithinNSigma(t_EBbxlist[ibx])
         t_BXTimeEB.SetBinContent( ibx, r[0] )
         t_BXTimeEB.SetBinError( ibx, r[1] )
-        r = getMeanWithinNSigma(EEMbxlist[ibx])
+
+        r = getMeanWithinNSigma(t_EEMbxlist[ibx])
         t_BXTimeEEM.SetBinContent( ibx, r[0] )
         t_BXTimeEEM.SetBinError( ibx, r[1] )
-        r = getMeanWithinNSigma(EEPbxlist[ibx])
+
+        r = getMeanWithinNSigma(t_EEPbxlist[ibx])
         t_BXTimeEEP.SetBinContent( ibx, r[0] )
         t_BXTimeEEP.SetBinError( ibx, r[1] )
+
+#       if( instlumi > 4 ):
+        r = getMeanWithinNSigma(t_EBbxlist4[ibx])
+        t_BXTimeEB_4ifbs.SetBinContent( ibx, r[0] )
+        t_BXTimeEB_4ifbs.SetBinError( ibx, r[1] )
+#        if( instlumi > 8 ):
+        r = getMeanWithinNSigma(t_EBbxlist8[ibx])
+        t_BXTimeEB_8ifbs.SetBinContent( ibx, r[0] )
+        t_BXTimeEB_8ifbs.SetBinError( ibx, r[1] )
+#        if( instlumi > 12 ):
+        r = getMeanWithinNSigma(t_EBbxlist12[ibx])
+        t_BXTimeEB_12ifbs.SetBinContent( ibx, r[0] )
+        t_BXTimeEB_12ifbs.SetBinError( ibx, r[1] )
+
+
 
 #  c1 = ROOT.TCanvas( 'BXTimeEB','',800,600)
 #  c1.cd()
@@ -175,12 +322,26 @@ def parseTree( inTreeFile ):
 #  c1.SaveAs( 'BXTimeEB.png')
 #  c1.Close()
 
-  tfile = ROOT.TFile( outfile, "UPDATE")
+  tfile = ROOT.TFile( outfile, "RECREATE")
   ROOT.SetOwnership(tfile,True)
+
+  for hist in lt_BXSpreadEB_list:
+	hist.Write()
+
+  lt_BXSpread2dEB.Write()
 
   BXTimeEB.Write()
   lt_BXTimeEB.Write()
   t_BXTimeEB.Write()
+  BXTimeEB_4ifbs.Write()
+  lt_BXTimeEB_4ifbs.Write()
+  t_BXTimeEB_4ifbs.Write()
+  BXTimeEB_8ifbs.Write()
+  lt_BXTimeEB_8ifbs.Write()
+  t_BXTimeEB_8ifbs.Write()
+  BXTimeEB_12ifbs.Write()
+  lt_BXTimeEB_12ifbs.Write()
+  t_BXTimeEB_12ifbs.Write()
   BXTimeEEM.Write()
   lt_BXTimeEEM.Write()
   t_BXTimeEEM.Write()
@@ -205,6 +366,8 @@ parseTree( inTreeFile )
 
 
 #def scratch():
+# Energy -> 1,2,5,10,20 GeV
+
 #
 #        if(iz == 0) ix += 85;
 #        else if(iz < 0) iz = 1;

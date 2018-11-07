@@ -100,14 +100,14 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<>  {
                         void dbtoRoot( const LHCInfo& obja, const EcalRecHit& rechit );
                         void closeRoot();
 
-                        static float getsum( vector<float> list );
-			static float getsum2( vector<float> list );
-			static float getmean( vector<float> list );
-			static float getstdev( vector<float> list );
-			static float getstdev( vector<float> list, float mean );
-			static float geterror( vector<float> list );
+                        static float getsum( std::vector<float> list );
+			static float getsum2( std::vector<float> list );
+			static float getmean( std::vector<float> list );
+			static float getstdev( std::vector<float> list );
+			static float getstdev( std::vector<float> list, float mean );
+			static float geterror( std::vector<float> list );
                         static float geterror( int num, float stdev );
-                        static float getmaxval( vector<float> list );
+                        static float getmaxval( std::vector<float> list );
 
                         static std::string timeToString(time_t t);
         		static std::string findAndReplaceAll(std::string data, std::string toSearch, std::string replaceStr);
@@ -121,41 +121,96 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<>  {
                         unsigned int lumi;
                         unsigned long  event;
                         unsigned int bx;
-
-                        unsigned int detid;
-			unsigned int ix;
-			unsigned int iy;
-                        unsigned int iz;
-
-                        float time;
-
-
-
+                        unsigned int lumiSection;
+                        unsigned long eventCount;
+                        unsigned int fillNumber;
                         float energy;
                         float instlumi;
+                        float time;
 
-			int pre_zero_len;
-			int train_count;
-                        int long_train_count;
-			int train_number;
-                        int long_train_number;
+			// EB
+			float rh_EB_mtime;
+		        float rh_EB_s2time;
+			float rh_EB_stime;
+			int rh_EB_count;
+                        float rh1GeV_EB_mtime;
+                        float rh1GeV__EB_s2time;
+                        float rh1GeV__EB_stime;
+                        int rh1GeV__EB_count;
+                        float rh2GeV_EB_mtime;
+                        float rh2GeV__EB_s2time;
+                        float rh2GeV__EB_stime;
+                        int rh2GeV__EB_count;
+                        float rh5GeV_EB_mtime;
+                        float rh5GeV__EB_s2time;
+                        float rh5GeV__EB_stime;
+                        int rh5GeV__EB_count;
+                        float rh10GeV_EB_mtime;
+                        float rh10GeV__EB_s2time;
+                        float rh10GeV__EB_stime;
+                        int rh10GeV__EB_count;
+                        float rh20GeV_EB_mtime;
+                        float rh20GeV__EB_s2time;
+                        float rh20GeV__EB_stime;
+                        int rh20GeV__EB_count;
 
-			unsigned long		eventCount;
-        		unsigned int		fillNumber;
+                        // EEP
+                        float rh_EEP_mtime;
+                        float rh_EEP_s2time;
+                        float rh_EEP_stime;
+                        int rh_EEP_count;
+                        float rh1GeV_EEP_mtime;
+                        float rh1GeV__EEP_s2time;
+                        float rh1GeV__EEP_stime;
+                        int rh1GeV__EEP_count;
+                        float rh2GeV_EEP_mtime;
+                        float rh2GeV__EEP_s2time;
+                        float rh2GeV__EEP_stime;
+                        int rh2GeV__EEP_count;
+                        float rh5GeV_EEP_mtime;
+                        float rh5GeV__EEP_s2time;
+                        float rh5GeV__EEP_stime;
+                        int rh5GeV__EEP_count;
+                        float rh10GeV_EEP_mtime;
+                        float rh10GeV__EEP_s2time;
+                        float rh10GeV__EEP_stime;
+                        int rh10GeV__EEP_count;
+                        float rh20GeV_EEP_mtime;
+                        float rh20GeV__EEP_s2time;
+                        float rh20GeV__EEP_stime;
+                        int rh20GeV__EEP_count;
 
-                        float                   bx0pc;
-                        float                   bxm4pc;
-                        float                   bxm3pc;
-                        float                   bxm2pc;
-                        float                   bxm1pc;
-                        float                   bxp1pc;
-                        float                   bxp2pc;
-                        float                   bxp3pc;
-                        float                   bxp4pc;
-                        float                   bxp5pc;
+                        // EEM
+                        float rh_EEM_mtime;
+                        float rh_EEM_s2time;
+                        float rh_EEM_stime;
+                        int rh_EEM_count;
+                        float rh1GeV_EEM_mtime;
+                        float rh1GeV__EEM_s2time;
+                        float rh1GeV__EEM_stime;
+                        int rh1GeV__EEM_count;
+                        float rh2GeV_EEM_mtime;
+                        float rh2GeV__EEM_s2time;
+                        float rh2GeV__EEM_stime;
+                        int rh2GeV__EEM_count;
+                        float rh5GeV_EEM_mtime;
+                        float rh5GeV__EEM_s2time;
+                        float rh5GeV__EEM_stime;
+                        int rh5GeV__EEM_count;
+                        float rh10GeV_EEM_mtime;
+                        float rh10GeV__EEM_s2time;
+                        float rh10GeV__EEM_stime;
+                        int rh10GeV__EEM_count;
+                        float rh20GeV_EEM_mtime;
+                        float rh20GeV__EEM_s2time;
+                        float rh20GeV__EEM_stime;
+                        int rh20GeV__EEM_count;
 
-        		unsigned int    	lumiSection;
+			int subtrain_position;
+                        int train_position;
 
+                        std::vector<float>      offset_bx_phc;
+		
 			float			ave_phase;
 			float			dif_phase;
 			float			vc2_phase;
@@ -249,21 +304,21 @@ def getMeanWithinNSigma( timelist ):
 # end of function
 */
 
-float jwk_ana_lhcDump::getsum( vector<float> list )
+float jwk_ana_lhcDump::getsum( std::vector<float> list )
 {
 	float sum(0.0);
         for( auto val : list ){ sum += val; }
 	return sum;
 }
 
-float jwk_ana_lhcDump::getsum2( vector<float> list )
+float jwk_ana_lhcDump::getsum2( std::vector<float> list )
 {
         float sum2(0.0);
-        for( auto val : list ){ sum += val*val; }
+        for( auto val : list ){ sum2 += val*val; }
         return sum2;
 }
 
-float jwk_ana_lhcDump::getmean( vector<float> list )
+float jwk_ana_lhcDump::getmean( std::vector<float> list )
 {
 	int num = list.size();
 	if (!num) return 0.0;
@@ -271,7 +326,7 @@ float jwk_ana_lhcDump::getmean( vector<float> list )
         return sum/num;
 }
 
-float jwk_ana_lhcDump::getstdev( vector<float> list )
+float jwk_ana_lhcDump::getstdev( std::vector<float> list )
 {
         int num = list.size();
         if (!num) return 0.0;
@@ -279,14 +334,14 @@ float jwk_ana_lhcDump::getstdev( vector<float> list )
 	return std::sqrt( getsum2( list ) / num - mean*mean );;
 }
 
-float jwk_ana_lhcDump::getstdev( vector<float> list, float mean )
+float jwk_ana_lhcDump::getstdev( std::vector<float> list, float mean )
 {
         int num = list.size();
         if (!num) return 0.0;
         return std::sqrt( getsum2( list ) / num - mean*mean );;
 }
 
-float jwk_ana_lhcDump::geterror( vector<float> list )
+float jwk_ana_lhcDump::geterror( std::vector<float> list )
 {
         int num = list.size();
         if (!num) return 0.0;
@@ -299,7 +354,7 @@ float jwk_ana_lhcDump::geterror( int num, float stdev )
 	return stdev/std::sqrt(num);
 }
 
-float jwk_ana_lhcDump::getmaxval( vector<float> list )
+float jwk_ana_lhcDump::getmaxval( std::vector<float> list )
 {
 	float maxval(0.0);
 	for( auto val : list ){ if( val > maxval ) maxval = val; }
@@ -310,7 +365,7 @@ std::string jwk_ana_lhcDump::findAndReplaceAll(std::string data, std::string toS
 {
 
 	size_t pos = data.find(toSearch);
-        while( pos != std::string::np s)
+        while( pos != std::string::npos)
         {
                 data.replace(pos, toSearch.size(), replaceStr);
                 pos =data.find(toSearch, pos + toSearch.size());
@@ -355,44 +410,61 @@ void jwk_ana_lhcDump::initRoot()
         tfile = new TFile(fname.str().c_str(), "RECREATE", title.str().c_str());
         tree = new TTree("lhcInfoTree", title.str().c_str());
 
-        tree->Branch("run",              	&run,            	"run/i");
-        tree->Branch("lumi",              	&lumi,            	"lumi/i");
-        tree->Branch("event",              	&event,            	"event/l");
-        tree->Branch("bx",              	&bx,            	"bx/i");
-
-        tree->Branch("detid",                   &detid,                  "detid/i");
-	tree->Branch("ix", 			&ix, 			 "ix/I");
-	tree->Branch("iy", 			&iy,			 "iy/I");
-	tree->Branch("iz", 			&iz,			 "iz/I");
-
+        tree->Branch("run",              	&run,            	 "run/i");
+        tree->Branch("lumi",              	&lumi,            	 "lumi/i");
+        tree->Branch("event",              	&event,            	 "event/l");
+        tree->Branch("bx",              	&bx,            	 "bx/i");
         tree->Branch("time",                    &time,                   "time/f");
         tree->Branch("energy",                  &energy,                 "energy/f");
         tree->Branch("instlumi",                &instlumi,               "instlumi/f");
+        tree->Branch("lumiSection",             &lumiSection,            "lumiSection/i");
+        tree->Branch("fillNumber",              &fillNumber,             "fillNumber/i");
 
-        tree->Branch("pre_zero_len",            &pre_zero_len,           "pre_zero_len/i");
-        tree->Branch("train_count",             &train_count,            "train_count/i");
-        tree->Branch("long_train_count",        &long_train_count,       "long_train_count/i");
-        tree->Branch("train_number",            &train_number,           "train_number/i");
-        tree->Branch("long_train_number",       &long_train_number,      "long_train_number/i");
-
-        tree->Branch("fillNumber",          	&fillNumber,          	"fillNumber/i");
+//        tree->Branch("pre_zero_len",            &pre_zero_len,           "pre_zero_len/i");
+        tree->Branch("subtrain_position",       &subtrain_position,      "subtrain_position/i");
+        tree->Branch("train_position",          &train_position,         "train_position/i");
+//        tree->Branch("train_number",            &train_number,           "train_number/i");
+//        tree->Branch("long_train_number",       &long_train_number,      "long_train_number/i");
 
         tree->Branch("ave_phase",                    &ave_phase,                   "ave_phase/f");
         tree->Branch("dif_phase",                    &dif_phase,                   "dif_phase/f");
         tree->Branch("vc2_phase",                    &vc2_phase,                   "vc2_phase/f");
 
-        tree->Branch("bx0pc",               &bx0pc,              "bx0pc/F");
-        tree->Branch("bxm4pc",              &bxm4pc,              "bxm4pc/F");
-        tree->Branch("bxm3pc",              &bxm3pc,              "bxm3pc/F");
-        tree->Branch("bxm4pc",              &bxm2pc,              "bxm2pc/F");
-        tree->Branch("bxm1pc",              &bxm1pc,              "bxm1pc/F");
-        tree->Branch("bxp1pc",              &bxp1pc,              "bxp5pc/F");
-        tree->Branch("bxp2pc",              &bxp2pc,              "bxp4pc/F");
-        tree->Branch("bxp3pc",              &bxp3pc,              "bxp3pc/F");
-        tree->Branch("bxp4pc",              &bxp4pc,              "bxp2pc/F");
-        tree->Branch("bxp5pc",              &bxp5pc,              "bxp1pc/F");
+	tree->Branch("offset_bx_phc", &offset_bx_phc );
 
-        tree->Branch("lumiSection",            	&lumiSection,           "lumiSection/i");
+        tree->Branch("rh_EB_mtime",                    &rh_EB_mtime,                   "rh_EB_mtime/f");
+        tree->Branch("rh_EB_count",                    &rh_EB_count,                   "rh_EB_count/f");
+
+	tree->Branch("rh_EB_mtime",                    &rh_EB_mtime,                   "rh_EB_mtime/f");
+	tree->Branch("rh_EB_s2time",                    &rh_EB_s2time,                   "rh_EB_s2time/f");
+	tree->Branch("rh_EB_stime",                    &rh_EB_stime,                   "rh_EB_stime/f");
+	tree->Branch("rh_EB_count",                    &rh_EB_count,                   "rh_EB_count/i");
+	tree->Branch("rh1GeV_EB_mtime",                    &rh1GeV_EB_mtime,                   "rh1GeV_EB_mtime/f");
+	tree->Branch("rh1GeV__EB_s2time",                    &rh1GeV__EB_s2time,                   "rh1GeV__EB_s2time/f");
+	tree->Branch("rh1GeV__EB_stime",                    &rh1GeV__EB_stime,                   "rh1GeV__EB_stime/f");
+	tree->Branch("rh1GeV__EB_count",                    &rh1GeV__EB_count,                   "rh1GeV__EB_count/i");
+	tree->Branch("rh2GeV_EB_mtime",                    &rh2GeV_EB_mtime,                   "rh2GeV_EB_mtime/f");
+	tree->Branch("rh2GeV__EB_s2time",                    &rh2GeV__EB_s2time,                   "rh2GeV__EB_s2time/f");
+	tree->Branch("rh2GeV__EB_stime",                    &rh2GeV__EB_stime,                   "rh2GeV__EB_stime/f");
+	tree->Branch("rh2GeV__EB_count",                    &rh2GeV__EB_count,                   "rh2GeV__EB_count/i");
+	tree->Branch("rh5GeV_EB_mtime",                    &rh5GeV_EB_mtime,                   "rh5GeV_EB_mtime/f");
+	tree->Branch("rh5GeV__EB_s2time",                    &rh5GeV__EB_s2time,                   "rh5GeV__EB_s2time/f");
+	tree->Branch("rh5GeV__EB_stime",                    &rh5GeV__EB_stime,                   "rh5GeV__EB_stime/f");
+	tree->Branch("rh5GeV__EB_count",                    &rh5GeV__EB_count,                   "rh5GeV__EB_count/i");
+	tree->Branch("rh10GeV_EB_mtime",                    & rh10GeV_EB_mtime,                   "rh10GeV_EB_mtime/f");
+	tree->Branch("rh10GeV__EB_s2time",                    &rh10GeV__EB_s2time,                   "rh10GeV__EB_s2time/f");
+	tree->Branch("rh10GeV__EB_stime",                    &rh10GeV__EB_stime,                   "rh10GeV__EB_stime/f");
+	tree->Branch("rh10GeV__EB_count",                    &rh10GeV__EB_count,                   "rh10GeV__EB_count/i");
+	tree->Branch("rh20GeV_EB_mtime",                    &rh20GeV_EB_mtime,                   "rh20GeV_EB_mtime/f");
+	tree->Branch("rh20GeV__EB_s2time",                    &rh20GeV__EB_s2time,                   "rh20GeV__EB_s2time/f");
+	tree->Branch("rh20GeV__EB_stime",                    &rh20GeV__EB_stime,                   "rh20GeV__EB_stime/f");
+	tree->Branch("rh20GeV__EB_count",                    &rh20GeV__EB_count,                   "rh20GeV__EB_count/i");
+
+        tree->Branch("rh_EEP_mtime",                    &rh_EEP_mtime,                   "rh_EEP_mtime/f");
+        tree->Branch("rh_EEP_count",                    &rh_EEP_count,                   "rh_EEP_count/f");
+
+        tree->Branch("rh_EEM_mtime",                    &rh_EEM_mtime,                   "rh_EEM_mtime/f");
+        tree->Branch("rh_EEM_count",                    &rh_EEM_count,                   "rh_EEM_count/f");
 
         h23_bPhase =            new TH1F("h23_bPhase","VC2_Phase Correction",1000,-50,50);
 	h24_dPhase =		new TH1F("h24_dPhase","Diff_Phase Correction",1000,-50,50);
@@ -423,31 +495,62 @@ void jwk_ana_lhcDump::closeRoot()
 void jwk_ana_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCollection>& RecHitEBHandle, edm::Handle<EcalRecHitCollection>& RecHitEEHandle )
 {
 
-        int _EcalBarrel(1);
+        fillNumber = lhcInfo.fillNumber();
+        instlumi = lhcInfo.instLumi();
 
-        fillNumber = obja.fillNumber();
-        instlumi = obja.instLumi();
+	std::vector<float> rechit_EB_times;
+        std::vector<float> rechit1_EB_times;
+        std::vector<float> rechit2_EB_times;
+        std::vector<float> rechit5_EB_times;
+        std::vector<float> rechit10_EB_times;
+        std::vector<float> rechit20_EB_times;
 
-	for( ){
-        	detid = rechit.detid().rawId();
-        	if( rechit.detid().subdetId() == _EcalBarrel ) {
-                	EBDetId id(rechit.detid());
-                	ix = id.ieta();
-                	iy = id.iphi();
-                	iz = 0;
-	        	//dumpTimingEventToTree(timingEventsTree, tEvent, id.rawId(), id.ieta(), id.iphi(), 0, elecID, iRing, run, lumi, event, bx);
-	        } else {
-	                EEDetId id(rechit.detid());
-	                ix = id.ix();
-	                iy = id.iy();
-                iz = id.zside();
-        //dumpTimingEventToTree(timingEventsTree, tEvent, id.rawId(), id.ix(), id.iy(), id.zside(), elecID, iRing, run, lumi, event, bx);
-        }
+        std::vector<float> rechit_EEP_times;
+        std::vector<float> rechit1_EEP_times;
+        std::vector<float> rechit2_EEP_times;
+        std::vector<float> rechit5_EEP_times;
+        std::vector<float> rechit10_EEP_times;
+        std::vector<float> rechit20_EEP_times;
+
+        std::vector<float> rechit_EEM_times;
+        std::vector<float> rechit1_EEM_times;
+        std::vector<float> rechit2_EEM_times;
+        std::vector<float> rechit5_EEM_times;
+        std::vector<float> rechit10_EEM_times;
+        std::vector<float> rechit20_EEM_times;
+
+        for(auto  recHit : *RecHitEBHandle) {
+
+	        rechit_EB_times.push_back(rechit.time());
+	
+	}
         
-        time = rechit.time();
-        energy = rechit.energy();
+        for(auto  recHit : *RecHitEEHandle) {
 
-	}        
+	        EEDetId id(rechit.detid());
+                iz = id.zside();			
+		if( iz > 0 ){
+                	rechit_EEP_times.push_back(rechit.time());
+		}
+		if( iz < 0 ){
+                	rechit_EEM_times.push_back(rechit.time());
+		}
+        }
+
+	//EB
+        rh_EB_mtime = getmean( rechit_EB_times );
+        rh_EB_count = rechit_EB_times.size();
+        rh_EB_menergy = getmean( rechit_EB_energies );
+
+        // EEP
+        rh_EEP_mtime = getmean( rechit_EEP_times );
+	rh_EEP_count = rechit_EEP_times.size();
+        rh_EEP_menergy = getmean( rechit_EEP_energies );
+
+        // EEM
+        rh_EEM_mtime = getmean( rechit_EEM_times );
+        rh_EEM_count = rechit_EEM_times.size();
+        rh_EEM_menergy = getmean( rechit_EEM_energies );
 
         bool first_zero( true );
         bool first_notzero( true );
@@ -474,13 +577,13 @@ void jwk_ana_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCo
         train.clear();
         long_train.clear();
 
-        for( unsigned int i  =  0; i < obja.beam1VC().size(); i++ ){
-//        for( unsigned int i  = bx-4; i <= bx+5; i++ ){
-                ave.push_back(((obja.beam1VC()[i]+obja.beam2VC()[i])/2.0)*(2.5/360.0));
-                dif.push_back((obja.beam1VC()[i]-obja.beam2VC()[i])*(2.5/360.0));
-                vc2.push_back((obja.beam2VC()[i])*(2.5/360.0));
+        for( unsigned int i  =  0; i < lhcInfo.beam1VC().size(); i++ ){
 
-                if( obja.beam1VC()[i] == 0.0 ) {
+                ave.push_back(((lhcInfo.beam1VC()[i]+lhcInfo.beam2VC()[i])/2.0)*(2.5/360.0));
+                dif.push_back((lhcInfo.beam1VC()[i]-lhcInfo.beam2VC()[i])*(2.5/360.0));
+                vc2.push_back((lhcInfo.beam2VC()[i])*(2.5/360.0));
+
+                if( lhcInfo.beam1VC()[i] == 0.0 ) {
                         if( first_zero == true ) {
                                 first_zero = false;
                                 first_notzero = true;
@@ -514,11 +617,11 @@ void jwk_ana_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCo
 //      //      if(eventCount%10) h26_bxPhase->Fill(i,eventCount,phcor); 
         }
 
-        pre_zero_len = train_zero[bx];
-        train_count = train_notzero[bx];
-        long_train_count = long_train_notzero[bx];
-        train_number = train[bx];
-        long_train_number = long_train[bx];
+//        pre_zero_len = train_zero[bx];
+        subtrain_position = train_notzero[bx];
+        train_position = long_train_notzero[bx];
+//        train_number = train[bx];
+//        long_train_number = long_train[bx];
 
         ave_phase = ave[bx];
         dif_phase = dif[bx];
@@ -529,39 +632,22 @@ void jwk_ana_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCo
         h25_Phase->Fill(ave_phase*1000);
         h26_bxOcc->Fill(bx);
 
-        bxp5pc = ave[bx+5];
-        bxp4pc = ave[bx+4];
-        bxp3pc = ave[bx+3];
-        bxp2pc = ave[bx+2];
-        bxp1pc = ave[bx+1];
-        bx0pc = ave[bx];
-        bxm1pc = ave[bx-1];
-        bxm2pc = ave[bx-2];
-        bxm3pc = ave[bx-3];
-        bxm4pc = ave[bx-4];
-
-        if( bxp5pc != 0. ) h27_filledbx->Fill( 5 );
-        if( bxp4pc != 0. ) h27_filledbx->Fill( 4 );
-        if( bxp3pc != 0. ) h27_filledbx->Fill( 3 );
-        if( bxp2pc != 0. ) h27_filledbx->Fill( 2 );
-        if( bxp1pc != 0. ) h27_filledbx->Fill( 1 );
-        if( bx0pc != 0. ) h27_filledbx->Fill( 0 );
-        if( bxm1pc != 0. ) h27_filledbx->Fill( -1 );
-        if( bxm2pc != 0. ) h27_filledbx->Fill( -2 );
-        if( bxm3pc != 0. ) h27_filledbx->Fill( -3 );
-        if( bxm4pc != 0. ) h27_filledbx->Fill( -4 );
+	for( int i = 5; i > -5; i-- ){ 
+//		offset_bx_phc.push_back( ave[bx+i] ); 
+		if( ave[bx+i] != 0. ) h27_filledbx->Fill( i );
+	}
 
         tree->Fill();
 }
 
-
-void jwk_ana_lhcDump::dbtoRoot(const LHCInfo & obja, const EcalRecHit& rechit )
+/*
+void jwk_ana_lhcDump::dbtoRoot(const LHCInfo & lhcInfo, const EcalRecHit& rechit )
 {
 
 	int _EcalBarrel(1);
 
-        fillNumber = obja.fillNumber();
-	instlumi = obja.instLumi();
+        fillNumber = lhcInfo.fillNumber();
+	instlumi = lhcInfo.instLumi();
 
 	detid = rechit.detid().rawId();
 	if( rechit.detid().subdetId() == _EcalBarrel ) {
@@ -610,13 +696,13 @@ void jwk_ana_lhcDump::dbtoRoot(const LHCInfo & obja, const EcalRecHit& rechit )
         train.clear();
         long_train.clear();
 
-	for( unsigned int i  =  0; i < obja.beam1VC().size(); i++ ){
+	for( unsigned int i  =  0; i < lhcInfo.beam1VC().size(); i++ ){
 //        for( unsigned int i  = bx-4; i <= bx+5; i++ ){
-		ave.push_back(((obja.beam1VC()[i]+obja.beam2VC()[i])/2.0)*(2.5/360.0));
-		dif.push_back((obja.beam1VC()[i]-obja.beam2VC()[i])*(2.5/360.0));
-		vc2.push_back((obja.beam2VC()[i])*(2.5/360.0));	
+		ave.push_back(((lhcInfo.beam1VC()[i]+lhcInfo.beam2VC()[i])/2.0)*(2.5/360.0));
+		dif.push_back((lhcInfo.beam1VC()[i]-lhcInfo.beam2VC()[i])*(2.5/360.0));
+		vc2.push_back((lhcInfo.beam2VC()[i])*(2.5/360.0));	
 	
-		if( obja.beam1VC()[i] == 0.0 ) {
+		if( lhcInfo.beam1VC()[i] == 0.0 ) {
 			if( first_zero == true ) {
 				first_zero = false;
 				first_notzero = true;
@@ -651,8 +737,8 @@ void jwk_ana_lhcDump::dbtoRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 	}
 
         pre_zero_len = train_zero[bx];
-        train_count = train_notzero[bx];
-	long_train_count = long_train_notzero[bx];
+        subtrain_position = train_notzero[bx];
+	train_position = long_train_notzero[bx];
 	train_number = train[bx];
 	long_train_number = long_train[bx];
 
@@ -689,6 +775,7 @@ void jwk_ana_lhcDump::dbtoRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 
         tree->Fill();
 }
+*/
 
 //EcalTimingEvents= cms.EDProducer("EcalTimingEventProducer",
 //                    recHitEECollection = cms.InputTag("ecalRecHitEBSelector"),

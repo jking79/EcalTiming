@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    anatemplet/jwk_ana_lhcDump
-// Class:      jwk_ana_lhcDump
+// Package:    anatemplet/jwk_ana_original_lhcDump
+// Class:      jwk_ana_original_lhcDump
 //
-/**\class Analyzer jwk_ana_lhcDump.cc EcalTiming/EcalTiming/plugins/jwk_ana_lhcDump.cc
+/**\class Analyzer jwk_ana_original_lhcDump.cc EcalTiming/EcalTiming/plugins/jwk_ana_original_lhcDump.cc
 
  Description: [one line class summary]
 
@@ -72,10 +72,10 @@
 
 //using reco::TrackCollection;
 
-class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class jwk_ana_original_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
-      explicit jwk_ana_lhcDump(const edm::ParameterSet&);
-      ~jwk_ana_lhcDump();
+      explicit jwk_ana_original_lhcDump(const edm::ParameterSet&);
+      ~jwk_ana_original_lhcDump();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -167,7 +167,7 @@ class jwk_ana_lhcDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 //
 // constructors and destructor
 //
-jwk_ana_lhcDump::jwk_ana_lhcDump(const edm::ParameterSet& iConfig):
+jwk_ana_original_lhcDump::jwk_ana_original_lhcDump(const edm::ParameterSet& iConfig):
 //	_timingEvents(consumes<EcalTimingCollection>(iConfig.getParameter<edm::InputTag>("timingCollection")))
 	_ecalRecHitsEBtoken(consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitEBCollection"))),
 	_ecalRecHitsEEtoken(consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitEECollection")))
@@ -177,7 +177,7 @@ jwk_ana_lhcDump::jwk_ana_lhcDump(const edm::ParameterSet& iConfig):
 }
 
 
-jwk_ana_lhcDump::~jwk_ana_lhcDump()
+jwk_ana_original_lhcDump::~jwk_ana_original_lhcDump()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -190,7 +190,7 @@ jwk_ana_lhcDump::~jwk_ana_lhcDump()
 // member functions
 //
 
-std::string jwk_ana_lhcDump::findAndReplaceAll(std::string data, std::string toSearch, std::string replaceStr)
+std::string jwk_ana_original_lhcDump::findAndReplaceAll(std::string data, std::string toSearch, std::string replaceStr)
 {
 
         size_t pos = data.find(toSearch);
@@ -203,7 +203,7 @@ std::string jwk_ana_lhcDump::findAndReplaceAll(std::string data, std::string toS
 }
 
 
-std::string jwk_ana_lhcDump::timeToString(time_t t)
+std::string jwk_ana_original_lhcDump::timeToString(time_t t)
 {
         char buf[256];
         struct tm lt;
@@ -219,7 +219,7 @@ std::string jwk_ana_lhcDump::timeToString(time_t t)
 	return ret;
 }
 
-void jwk_ana_lhcDump::initRoot()
+void jwk_ana_original_lhcDump::initRoot()
 {
         std::stringstream title;
         std::stringstream fname;
@@ -288,7 +288,7 @@ void jwk_ana_lhcDump::initRoot()
         std::cout << "Tree created" << std::endl;
 }
 
-void jwk_ana_lhcDump::closeRoot()
+void jwk_ana_original_lhcDump::closeRoot()
 {
 
 	 tfile->cd();
@@ -304,7 +304,7 @@ void jwk_ana_lhcDump::closeRoot()
          tfile->Close();
 }
 
-void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
+void jwk_ana_original_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 {
 
 	int _EcalBarrel(1);
@@ -457,7 +457,7 @@ void jwk_ana_lhcDump::dbToRoot(const LHCInfo & obja, const EcalRecHit& rechit )
 
 
 void
-jwk_ana_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+jwk_ana_original_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -520,7 +520,7 @@ jwk_ana_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-jwk_ana_lhcDump::beginJob()
+jwk_ana_original_lhcDump::beginJob()
 {
 	eventCount = 0;
 	initRoot();
@@ -528,14 +528,14 @@ jwk_ana_lhcDump::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-jwk_ana_lhcDump::endJob()
+jwk_ana_original_lhcDump::endJob()
 {
         closeRoot();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-jwk_ana_lhcDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+jwk_ana_original_lhcDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -550,4 +550,4 @@ jwk_ana_lhcDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(jwk_ana_lhcDump);
+DEFINE_FWK_MODULE(jwk_ana_original_lhcDump);

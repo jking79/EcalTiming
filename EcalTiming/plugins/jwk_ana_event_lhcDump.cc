@@ -208,6 +208,8 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
 
 			int subtrain_position;
                         int train_position;
+                        int subtrain_number;
+                        int train_number;
 
                         std::vector<float>      offset_bx_phc;
 		
@@ -423,8 +425,8 @@ void jwk_ana_event_lhcDump::initRoot()
 //        tree->Branch("pre_zero_len",            &pre_zero_len,           "pre_zero_len/i");
         tree->Branch("subtrain_position",       &subtrain_position,      "subtrain_position/i");
         tree->Branch("train_position",          &train_position,         "train_position/i");
-//        tree->Branch("train_number",            &train_number,           "train_number/i");
-//        tree->Branch("long_train_number",       &long_train_number,      "long_train_number/i");
+        tree->Branch("subtrain_number",         &subtrain_number,        "subtrain_number/i");
+        tree->Branch("train_number",       	&train_number,      	 "train_number/i");
 
         tree->Branch("ave_phase",                    &ave_phase,                   "ave_phase/f");
         tree->Branch("dif_phase",                    &dif_phase,                   "dif_phase/f");
@@ -630,6 +632,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
         rh_EB_s2time = getsum2( timemap[0][0] );
         rh_EB_stime = getsum( timemap[0][0] );
         rh_EB_count = timemap[0][0].size();
+//	std::cout << "EB RH Count: " << rh_EB_count << std::endl;
         rh1GeV_EB_mtime = getmean( timemap[0][1] );
         rh1GeV_EB_s2time = getsum2( timemap[0][1] );
         rh1GeV_EB_stime = getsum( timemap[0][1] );
@@ -719,14 +722,14 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
         std::vector<unsigned int> train_zero;
         std::vector<unsigned int> train_notzero;
         std::vector<unsigned int> long_train_notzero;
-        std::vector<unsigned int> train;
-        std::vector<unsigned int> long_train;
+        std::vector<unsigned int> subtrain_num;
+        std::vector<unsigned int> train_num;
 
         train_zero.clear();
         train_notzero.clear();
         long_train_notzero.clear();
-        train.clear();
-        long_train.clear();
+        subtrain_num.clear();
+        train_num.clear();
 
         for( unsigned int i  =  0; i < lhcInfo.beam1VC().size(); i++ ){
 
@@ -759,8 +762,8 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
                 train_zero.push_back(zero);
                 train_notzero.push_back(notzero);
                 long_train_notzero.push_back(longnotzero);
-                train.push_back(count);
-                long_train.push_back(longcount);
+                subtrain_num.push_back(count);
+                train_num.push_back(longcount);
 
 //              std::cout << "BX: " << i << " Event: " << eventCount; 
 //              std::cout << " Train #: " << count << " LongTrian #: " << longcount; 
@@ -771,8 +774,8 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
 //        pre_zero_len = train_zero[bx];
         subtrain_position = train_notzero[bx];
         train_position = long_train_notzero[bx];
-//        train_number = train[bx];
-//        long_train_number = long_train[bx];
+        subtrain_number = subtrain_num[bx];
+        train_number = train_num[bx];
 
         ave_phase = ave[bx];
         dif_phase = dif[bx];

@@ -85,8 +85,8 @@ else:
 
 #options.files = cms.untracked.vstring
 #options.streamName = cms.untracked.vstring
-#options.maxEvents = -1 # -1 means all events
-options.maxEvents = 1000 # use 500 for jwk_ana_lhcInfoDump
+options.maxEvents = -1 # -1 means all events
+#options.maxEvents = 1000 # use 500 for jwk_ana_lhcInfoDump
 
 ### get and parse the command line arguments
 options.parseArguments()

@@ -209,7 +209,7 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
                         unsigned int subtrain_number;
                         unsigned int train_number;
 
-                        std::vector<float>      offset_bx_phc;
+        //                std::vector<float>      offset_bx_phc;
 		
 			float			ave_phase;
 			float			dif_phase;
@@ -221,6 +221,10 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
 			
 			TH1I *h26_bxOcc;
 			TH1F *h27_filledbx;
+
+         		TH1F *h28_rh_EB_Energy;
+         		TH1F *h29_rh_EEP_Energy;
+         		TH1F *h30_rh_EEM_Energy;
 
 			edm::EDGetTokenT<EBRecHitCollection> _ecalRecHitsEBtoken;
 			edm::EDGetTokenT<EERecHitCollection> _ecalRecHitsEEtoken;
@@ -428,7 +432,7 @@ void jwk_ana_event_lhcDump::initRoot()
         tree->Branch("dif_phase",                    &dif_phase,                   "dif_phase/f");
         tree->Branch("vc2_phase",                    &vc2_phase,                   "vc2_phase/f");
 
-	tree->Branch("offset_bx_phc", &offset_bx_phc );
+//	tree->Branch("offset_bx_phc", &offset_bx_phc );
 
 	tree->Branch("rh_EB_mtime",                    &rh_EB_mtime,                   "rh_EB_mtime/f");
 	tree->Branch("rh_EB_s2time",                    &rh_EB_s2time,                   "rh_EB_s2time/f");
@@ -505,18 +509,14 @@ void jwk_ana_event_lhcDump::initRoot()
         tree->Branch("rh20GeV_EEP_stime",                    &rh20GeV_EEP_stime,                   "rh20GeV_EEP_stime/f");
         tree->Branch("rh20GeV_EEP_count",                    &rh20GeV_EEP_count,                   "rh20GeV_EEP_count/i");
 
-        tree->Branch("rh_EEP_mtime",                    &rh_EEP_mtime,                   "rh_EEP_mtime/f");
-        tree->Branch("rh_EEP_count",                    &rh_EEP_count,                   "rh_EEP_count/f");
-
-        tree->Branch("rh_EEM_mtime",                    &rh_EEM_mtime,                   "rh_EEM_mtime/f");
-        tree->Branch("rh_EEM_count",                    &rh_EEM_count,                   "rh_EEM_count/f");
-
         h23_bPhase =            new TH1F("h23_bPhase","VC2_Phase Correction",1000,-50,50);
 	h24_dPhase =		new TH1F("h24_dPhase","Diff_Phase Correction",1000,-50,50);
 	h25_Phase =		new TH1F("h25_Phase","Phase Correction",1000,-50,50);
-
 	h26_bxOcc = 		new TH1I("h26_bxOcc","BX Occupancy", 3564,0,3564 );
 	h27_filledbx = 		new TH1F("h27_FilledBX","Filled BXs",13,-6.5,6.5);
+        h28_rh_EB_Energy =      new TH1F("h28_rh_EB_Energy","RecHit Energy Distribution EB",50,0,50);
+        h29_rh_EEP_Energy =      new TH1F("h29_rh_EEP_Energy","RecHit Energy Distribution EEP",50,0,50);
+        h30_rh_EEM_Energy =      new TH1F("h30_rh_EEM_Energy","RecHit Energy Distribution EEM",50,0,50);
 
         std::cout << "Tree created" << std::endl;
 }
@@ -531,6 +531,9 @@ void jwk_ana_event_lhcDump::closeRoot()
 	 h25_Phase->Write();
          h26_bxOcc->Write();
 	 h27_filledbx->Write(); 
+         h28_rh_EB_Energy->Write();
+         h29_rh_EEP_Energy->Write();
+         h30_rh_EEM_Energy->Write();
 	 tree->Write("", TObject::kOverwrite);
 	 
 //	 tfile->Write();
@@ -558,6 +561,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
                 if( recHit.energy() > 5 ){ timemap[0][3].push_back(recHit.time());}
                 if( recHit.energy() > 10 ){ timemap[0][4].push_back(recHit.time());}
                 if( recHit.energy() > 20 ){ timemap[0][5].push_back(recHit.time());}
+		h28_rh_EB_Energy->Fill(recHit.energy());
 //	        recHit_EB_times.push_back(rechit.time());
 	
 	}
@@ -573,6 +577,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
                 	if( recHit.energy() > 5 ){ timemap[1][3].push_back(recHit.time());}
                 	if( recHit.energy() > 10 ){ timemap[1][4].push_back(recHit.time());}
                 	if( recHit.energy() > 20 ){ timemap[1][5].push_back(recHit.time());}
+                	h29_rh_EEP_Energy->Fill(recHit.energy());
 // 		       	recHit_EEP_times.push_back(rechit.time());
 		}
 		if( iz < 0 ){
@@ -582,6 +587,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
                         if( recHit.energy() > 5 ){ timemap[2][3].push_back(recHit.time());}
                         if( recHit.energy() > 10 ){ timemap[2][4].push_back(recHit.time());}
                         if( recHit.energy() > 20 ){ timemap[2][5].push_back(recHit.time());}
+                	h30_rh_EEM_Energy->Fill(recHit.energy());
 //                	recHit_EEM_times.push_back(rechit.time());
 		}
         }
@@ -747,7 +753,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
         h26_bxOcc->Fill(bx);
 
 	for( int i = 5; i > -5; i-- ){ 
-		offset_bx_phc.push_back( ave[bx+i] ); 
+//		offset_bx_phc.push_back( ave[bx+i] ); 
 		if( ave[bx+i] != 0. ) h27_filledbx->Fill( i );
 	}
  //       std::cout << "EB RH Count prefill: " << rh_EB_count << std::endl;

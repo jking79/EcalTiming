@@ -62,7 +62,13 @@
 #include <stdio.h>
 #include <time.h>
 
-//
+// Vertices collection
+#include "DataFormats/VertexReco/interface/Vertex.h"
+// Particle flow collection
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+
 // class declaration
 //
 
@@ -96,8 +102,9 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
 			typedef int ParticleTypeId;
 
                         void initRoot();
-                	void dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCollection> RecHitEBHandle, edm::Handle<EcalRecHitCollection> RecHitEEHandle );
-                        void dbtoRoot( const LHCInfo& obja, const EcalRecHit& rechit );
+                	void dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCollection> RecHitEBHandle, edm::Handle<EcalRecHitCollection> RecHitEEHandle ); 
+			//		edm::Handle <std::vector<reco::PFCandidate>> PFCandidates );
+//                      void dbtoRoot( const LHCInfo& obja, const EcalRecHit& rechit );
                         void closeRoot();
 
                         static float getsum( std::vector<float> list );
@@ -117,6 +124,7 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
                         TTree *tree;
                         TFile *tfile;
 
+//			float zed;
                         unsigned int run;
                         unsigned int lumi;
                         unsigned long  event;
@@ -226,6 +234,9 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
          		TH1F *h29_rh_EEP_Energy;
          		TH1F *h30_rh_EEM_Energy;
 
+
+//			edm::EDGetTokenT<std::vector< reco::PFCandidate > > pfToken_;
+
 			edm::EDGetTokenT<EBRecHitCollection> _ecalRecHitsEBtoken;
 			edm::EDGetTokenT<EERecHitCollection> _ecalRecHitsEEtoken;
 //     			edm::InputTag _barrelDigiCollection; //!< secondary name given to collection of digis	
@@ -251,8 +262,12 @@ jwk_ana_event_lhcDump::jwk_ana_event_lhcDump(const edm::ParameterSet& iConfig):
 //	_endcapDigiCollection (iConfig.getParameter<edm::InputTag> ("EEdigiCollection")),
 	_ecalRecHitsEBtoken(consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitEBCollection"))),
 	_ecalRecHitsEEtoken(consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitEECollection")))
+// 	pfToken_(consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag")))
 {
    //now do what ever initialization is needed
+ //       _ecalRecHitsEBtoken = consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitEBCollection"));
+ //       _ecalRecHitsEEtoken = consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitEECollection"));
+ //       pfToken_ = consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
 
 }
 
@@ -422,6 +437,8 @@ void jwk_ana_event_lhcDump::initRoot()
         tree->Branch("lumiSection",             &lumiSection,            "lumiSection/i");
         tree->Branch("fillNumber",              &fillNumber,             "fillNumber/i");
 
+ //       tree->Branch("zed",                &zed,               "zed/f");
+
 //        tree->Branch("pre_zero_len",            &pre_zero_len,           "pre_zero_len/i");
         tree->Branch("subtrain_position",       &subtrain_position,      "subtrain_position/i");
         tree->Branch("train_position",          &train_position,         "train_position/i");
@@ -541,7 +558,17 @@ void jwk_ana_event_lhcDump::closeRoot()
 }
 
 void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRecHitCollection> RecHitEBHandle, edm::Handle<EcalRecHitCollection> RecHitEEHandle )
+//				edm::Handle <std::vector<reco::PFCandidate>> PFCandidates )
 {
+
+/*
+  	for( unsigned int i = 0; i < PFCandidates->size(); ++i ) {
+    		const reco::PFCandidate* pfAll = &((*PFCandidates)[i]);
+    		zed = pfAll->vz();
+ 	}
+*/
+//	const reco::PFCandidate* pfAll = &((*PFCandidates)[0]);
+//	zed = pfAll->vz();
 
         fillNumber = lhcInfo.fillNumber();
         instlumi = lhcInfo.instLumi();
@@ -796,6 +823,10 @@ jwk_ana_event_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	edm::Handle<EcalRecHitCollection> RecHitEEHandle;
 	iEvent.getByToken(_ecalRecHitsEEtoken, RecHitEEHandle);
 
+//  	edm::Handle <std::vector<reco::PFCandidate>> PFCandidates;
+//  	iEvent.getByToken(pfToken_,PFCandidates);
+
+
 //	Handle<EEDigiCollection> endcapDigis;
 //	iEvent.getByLabel(_endcapDigiCollection, endcapDigis);
 //	Handle<EBDigiCollection> barrelDigis;
@@ -817,7 +848,7 @@ jwk_ana_event_lhcDump::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }else{
                 const LHCInfo* lhcInfo = lhcInfoHnd.product();
 
-		dbtoRoot( *lhcInfo, RecHitEBHandle, RecHitEEHandle );
+		dbtoRoot( *lhcInfo, RecHitEBHandle, RecHitEEHandle ); //, PFCandidates );
 
         }//lhc
 

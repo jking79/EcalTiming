@@ -189,7 +189,6 @@ private:
 	bool _produceNewCalib; ///< true if you don't want to use the values in DB and what to extract new absolute calibrations, if false iteration does not work
 	std::string _outputDumpFileName; ///< name of the output file for the calibration constants' dump
 	float _maxSkewnessForDump;
-	float _ph_corr_sign;
 /// @}
 
         void dumpTimingEventToTree(TTree *tree, EcalTimingEvent tEvent, uint32_t rawid_, int ix_, int iy_, int iz_, unsigned int elecID_, int iRing_, int run_, int lumi_, int event_, int bx_);

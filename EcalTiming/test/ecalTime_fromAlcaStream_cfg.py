@@ -339,7 +339,7 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
 
 if doAnalysis:
-	process.load('EcalTiming.EcalTiming.jwk_ecalTimingCalibProducer_cfi')
+	process.load('EcalTiming.EcalTiming.ecalTimingCalibProducer_cfi')
 	process.timing.timingCollection = cms.InputTag("EcalTimingEvents")
 	process.timing.isSplash= cms.bool(True if options.isSplash else False)
         process.timing.saveTimingEvents= cms.bool(True)

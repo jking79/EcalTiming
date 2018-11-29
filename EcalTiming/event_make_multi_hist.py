@@ -39,8 +39,8 @@ maxRange = 10
 #outfile = 'lxbatch/320688/JOB_12/hist_LHCInfo_2SigmaEvent_Run320688_J12.root'
 
 ftitle = 'Run 317335, 317339, 317340 '
-rootfile = 'dump_LHCInfo_Event_multi.root'
-outfile = 'hist_LHCInfo_Event_multi.root'
+rootfile = 'lxbatch/317340/dump_LHCInfo_317340_multi_A.root'
+outfile = 'lxbatch/317340/hist_LHCInfo_317340_multi_A.root'
 
 #rootfile = 'rechit_ntuples/dump_LHCInfo_Event_320688_BO7.root'
 #outfile = 'hist_LHCInfo_Event_320688_BO7.root'
@@ -245,7 +245,7 @@ def parseTree( inTreeFile ):
   MTimeLoc_hist = []
 
   print( 'Initializing input varibles' )
-  for itype, runlen in [ [0,bunchSlots],[1,trainLength],[2,subtrainLength] ]:
+  for itype, runlen in [ [0,bunchSlots] ]: #,[1,trainLength],[2,subtrainLength] ]:
         phaselist.append([])
         for ibx in xrange(runlen):
                 phaselist[itype].append([])
@@ -261,12 +261,12 @@ def parseTree( inTreeFile ):
 	BXTime_red_hist.append([])
         BXTime_sam_hist.append([])
 	MTimeLoc_hist.append([])
-	for ilen in xrange( trainLength ):
-		MTimeLoc_hist[iloc].append([])
-        for inum in xrange( trainNumber ):
-        	mtime_tlist[iloc].append([])
-                for ipos in xrange( trainLength ):
-                	mtime_tlist[iloc][inum].append([])
+#	for ilen in xrange( trainLength ):
+#		MTimeLoc_hist[iloc].append([])
+#        for inum in xrange( trainNumber ):
+#        	mtime_tlist[iloc].append([])
+#                for ipos in xrange( trainLength ):
+#                	mtime_tlist[iloc][inum].append([])
 	for igev in [0,1,2,3,4,5] :
 		mtimelist[iloc].append([])
 		sum2list[iloc].append([])
@@ -275,7 +275,7 @@ def parseTree( inTreeFile ):
 		BXTime_cor_hist[iloc].append([])
 		BXTime_red_hist[iloc].append([])
                 BXTime_sam_hist[iloc].append([])
-		for itype, runlen in [ [0,bunchSlots],[1,trainLength],[2,subtrainLength] ]:  
+		for itype, runlen in [ [0,bunchSlots] ]: #,[1,trainLength],[2,subtrainLength] ]:  
 			mtimelist[iloc][igev].append([])
 			sum2list[iloc][igev].append([])
                         BXTime_pc_hist[iloc][igev].append([])
@@ -365,7 +365,7 @@ def parseTree( inTreeFile ):
 	RFSum_Dist_hist.Fill( (dif_phase + 2*vc2_phase)*1000 )
 
 	# EB
-	mtime_tlist[0][train_number][train_position].append([tree.rh_EB_mtime,tree.rh_EB_count])
+#	mtime_tlist[0][train_number][train_position].append([tree.rh_EB_mtime,tree.rh_EB_count])
 	#print( 'Mtime: '+str(tree.rh_EB_mtime)+' Corrected: '+str(tree.rh_EB_mtime))
 	mtimemap[0][0].append(tree.rh_EB_mtime)
 	sum2map[0][0].append(tree.rh_EB_s2time)
@@ -387,7 +387,7 @@ def parseTree( inTreeFile ):
         countmap[0][5].append(tree.rh20GeV_EB_count)
 
         # EEP
-	mtime_tlist[1][train_number][train_position].append([tree.rh_EEM_mtime,tree.rh_EEP_count])
+#	mtime_tlist[1][train_number][train_position].append([tree.rh_EEM_mtime,tree.rh_EEP_count])
         mtimemap[1][0].append(tree.rh_EEP_mtime)
         sum2map[1][0].append(tree.rh_EEP_s2time)
         countmap[1][0].append(tree.rh_EEP_count)
@@ -408,7 +408,7 @@ def parseTree( inTreeFile ):
         countmap[1][5].append(tree.rh20GeV_EEP_count)
 
         # EEM
-	mtime_tlist[2][train_number][train_position].append([tree.rh_EEM_mtime,tree.rh_EEM_count])
+#	mtime_tlist[2][train_number][train_position].append([tree.rh_EEM_mtime,tree.rh_EEM_count])
         mtimemap[2][0].append(tree.rh_EEM_mtime)
         sum2map[2][0].append(tree.rh_EEM_s2time)
         countmap[2][0].append(tree.rh_EEM_count)
@@ -431,14 +431,14 @@ def parseTree( inTreeFile ):
 
 	#print( 'Filling Lists')
         phaselist[0][bx].append([ave_phase])
-        phaselist[1][train_position].append([ave_phase])
-        phaselist[2][subtrain_position].append([ave_phase])
+        #phaselist[1][train_position].append([ave_phase])
+        #phaselist[2][subtrain_position].append([ave_phase])
   	for iloc, tiloc  in [ [0,'EB'],[1,'EEP'],[2,'EEM']] :
         	for igev, tigev in [[0,''],[1,'1GeV'],[2,'2GeV'],[3,'5GeV'],[4,'10GeV'],[5,'20GeV']] :
 			#print( 'Filling '+tiloc+' for '+tigev )
                         mtimelist[iloc][igev][0][bx].append([mtimemap[iloc][igev][0],countmap[iloc][igev][0],sum2map[iloc][igev][0]])
-                        mtimelist[iloc][igev][1][train_position].append([mtimemap[iloc][igev][0],countmap[iloc][igev][0],sum2map[iloc][igev][0]])
-                        mtimelist[iloc][igev][2][subtrain_position].append([mtimemap[iloc][igev][0],countmap[iloc][igev][0],sum2map[iloc][igev][0]])
+                       # mtimelist[iloc][igev][1][train_position].append([mtimemap[iloc][igev][0],countmap[iloc][igev][0],sum2map[iloc][igev][0]])
+                       # mtimelist[iloc][igev][2][subtrain_position].append([mtimemap[iloc][igev][0],countmap[iloc][igev][0],sum2map[iloc][igev][0]])
 
 	#   end of loop
 #  print( 'Closing Input File')
@@ -447,12 +447,12 @@ def parseTree( inTreeFile ):
   print( "Initializing Histograms" )
 
   for iloc, tiloc  in [ [0,'EB'],[1,'EEP'],[2,'EEM']] :
-	for ilen in xrange( trainLength ):
-		histname = "MTimeLoc_"+tiloc+"_"+str(ilen)
-		histtitle = "Train Position: "+str(ilen)+"   "+tiloc+";"+ftitle+"     Train Number; "+corrstr+" Mean BX Time[ns]"
-		MTimeLoc_hist[iloc][ilen].append(ROOT.TH1F(histname,histtitle,trainNumber,0,trainNumber))
+#	for ilen in xrange( trainLength ):
+#		histname = "MTimeLoc_"+tiloc+"_"+str(ilen)
+#		histtitle = "Train Position: "+str(ilen)+"   "+tiloc+";"+ftitle+"     Train Number; "+corrstr+" Mean BX Time[ns]"
+#		MTimeLoc_hist[iloc][ilen].append(ROOT.TH1F(histname,histtitle,trainNumber,0,trainNumber))
         for igev, tigev in [[0,'0GeV'],[1,'1GeV'],[2,'2GeV'],[3,'5GeV'],[4,'10GeV'],[5,'20GeV']] :
-                for itype, runlen, titype in [ [0,bunchSlots,'BX'],[1,trainLength,'Train'],[2,subtrainLength,'SubTrain'] ]:  # 0 = bynchSlots, 1 = trainlength, 2 = subtrainlength
+                for itype, runlen, titype in [ [0,bunchSlots,'BX'] ]: #,[1,trainLength,'Train'],[2,subtrainLength,'SubTrain'] ]:  # 0 = bynchSlots, 1 = trainlength, 2 = subtrainlength
                         histname = "BXTime_pc_"+tiloc+"_"+tigev+"_"+titype
                         histtitle = "Rf Phase Correction[ns] "+tiloc+"  ( >"+tigev+");"+ftitle+"    "+titype+" Position; RF Phase Correction ([vc1+vc2]/2) [ns]"
                         BXTime_pc_hist[iloc][igev][itype].append(ROOT.TH1F(histname,histtitle,runlen,0,runlen))
@@ -473,17 +473,17 @@ def parseTree( inTreeFile ):
 
   for iloc, tiloc  in [ [0,'EB'],[1,'EEP'],[2,'EEM']] :
 	print( 'Filling '+tiloc )
-	for ilen in xrange( trainLength ):
+#	for ilen in xrange( trainLength ):
 		#print( 'Filling '+tiloc+' for Position '+str(ilen) )
-		for inum in xrange( trainNumber ):
-#			input_list = get_2sig_list(mtime_tlist[iloc][inum][ilen])
-			input_list = mtime_tlist[iloc][inum][ilen]
-			mtime = get_mean( input_list )
-			MTimeLoc_hist[iloc][ilen][0].SetBinContent( inum, mtime )
-			MTimeLoc_hist[iloc][ilen][0].SetBinError( inum, get_error( input_list, mtime) )
+#		for inum in xrange( trainNumber ):
+#		#	input_list = get_2sig_list(mtime_tlist[iloc][inum][ilen])
+#			input_list = mtime_tlist[iloc][inum][ilen]
+#			mtime = get_mean( input_list )
+#			MTimeLoc_hist[iloc][ilen][0].SetBinContent( inum, mtime )
+#			MTimeLoc_hist[iloc][ilen][0].SetBinError( inum, get_error( input_list, mtime) )
         for igev, tigev in [[0,'All'],[1,'1GeV'],[2,'2GeV'],[3,'5GeV'],[4,'10GeV'],[5,'20GeV']] :
                 #print( 'Filling '+tiloc+' for '+tigev )
-                for itype, runlen, titype in [ [0,bunchSlots,'BX'],[1,trainLength,'Train'],[2,subtrainLength,'SubTrain'] ] :  # 0 = bynchSlots, 1 = trainlength, 2 = subtrainlength
+                for itype, runlen, titype in [ [0,bunchSlots,'BX'] ]: #,[1,trainLength,'Train'],[2,subtrainLength,'SubTrain'] ] :  # 0 = bynchSlots, 1 = trainlength, 2 = subtrainlength
 			#print( 'Filling '+tiloc+' for '+tigev+' in '+titype)
 			for ibx in xrange(runlen):
                         	input_list = get_2sig_list(mtimelist[iloc][igev][itype][ibx])
@@ -521,10 +521,10 @@ def parseTree( inTreeFile ):
   #EB_BXTime_Train_0GeV.Write()
 
   for iloc, tiloc  in [ [0,'EB'],[1,'EEP'],[2,'EEM']] :
-	for ilen in xrange( trainLength ):
-		MTimeLoc_hist[iloc][ilen][0].Write()
+#	for ilen in xrange( trainLength ):
+#		MTimeLoc_hist[iloc][ilen][0].Write()
         for igev, tigev in [[0,''],[1,'1GeV'],[2,'2GeV'],[3,'5GeV'],[4,'10GeV'],[5,'20GeV']] :
-                for itype, runlen, titype in [ [0,bunchSlots,'BX'],[1,trainLength,'Train'],[2,subtrainLength,'SubTrain'] ] :  # 0 = bynchSlots, 1 = trainlength, 2 = subtrainlength
+                for itype, runlen, titype in [ [0,bunchSlots,'BX'] ]: #,[1,trainLength,'Train'],[2,subtrainLength,'SubTrain'] ] :  # 0 = bynchSlots, 1 = trainlength, 2 = subtrainlength
                 	BXTime_rh_hist[iloc][igev][itype][0].Write()
                         BXTime_cor_hist[iloc][igev][itype][0].Write()
 			BXTime_red_hist[iloc][igev][itype][0].Write()

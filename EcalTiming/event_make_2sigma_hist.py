@@ -12,7 +12,7 @@ trainNumber = 25
 nSigma = 2.0
 maxRange = 10
 
-#ftitle = 'Run 320688'
+ftitle = 'Run 320688'
 #rootfile = 'lxbatch/320688/JOB_1/dump_LHCInfo_Event_2018-11-21_21_35_39.root'
 #outfile = 'lxbatch/320688/JOB_1/hist_LHCInfo_2SigmaEvent_Run320688_J1.root'
 #rootfile = 'lxbatch/320688/JOB_2/dump_LHCInfo_Event_2018-11-21_21_33_30.root'
@@ -35,12 +35,8 @@ maxRange = 10
 #outfile = 'lxbatch/320688/JOB_10/hist_LHCInfo_2SigmaEvent_Run320688_J10.root'
 #rootfile = 'lxbatch/320688/JOB_11/dump_LHCInfo_Event_2018-11-21_21_33_43.root'
 #outfile = 'lxbatch/320688/JOB_11/hist_LHCInfo_2SigmaEvent_Run320688_J11.root'
-#rootfile = 'lxbatch/320688/JOB_12/dump_LHCInfo_Event_2018-11-21_21_52_42.root'
-#outfile = 'lxbatch/320688/JOB_12/hist_LHCInfo_2SigmaEvent_Run320688_J12.root'
-
-ftitle = 'Run 317335, 317339, 317340 '
-rootfile = 'dump_LHCInfo_Event_multi.root'
-outfile = 'hist_LHCInfo_Event_multi.root'
+rootfile = 'lxbatch/320688/JOB_12/dump_LHCInfo_Event_2018-11-21_21_52_42.root'
+outfile = 'lxbatch/320688/JOB_12/hist_LHCInfo_2SigmaEvent_Run320688_J12.root'
 
 #rootfile = 'rechit_ntuples/dump_LHCInfo_Event_320688_BO7.root'
 #outfile = 'hist_LHCInfo_Event_320688_BO7.root'
@@ -476,8 +472,8 @@ def parseTree( inTreeFile ):
 	for ilen in xrange( trainLength ):
 		#print( 'Filling '+tiloc+' for Position '+str(ilen) )
 		for inum in xrange( trainNumber ):
-#			input_list = get_2sig_list(mtime_tlist[iloc][inum][ilen])
-			input_list = mtime_tlist[iloc][inum][ilen]
+			input_list = get_2sig_list(mtime_tlist[iloc][inum][ilen])
+#			input_list = mtime_tlist[iloc][inum][ilen]
 			mtime = get_mean( input_list )
 			MTimeLoc_hist[iloc][ilen][0].SetBinContent( inum, mtime )
 			MTimeLoc_hist[iloc][ilen][0].SetBinError( inum, get_error( input_list, mtime) )

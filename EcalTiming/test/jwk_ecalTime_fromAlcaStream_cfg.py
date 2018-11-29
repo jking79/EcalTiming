@@ -199,6 +199,7 @@ process.LHCInfoReader = cms.ESSource("PoolDBESSource",
 			cms.PSet(
 				record = cms.string("LHCInfoRcd"),
                                 tag = cms.string("LHCInfoStartFillTest_v2")
+#                                tag = cms.string("LHCInfoStartFillTest_v0")
 			)
 		),
                 connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')

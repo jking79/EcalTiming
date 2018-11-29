@@ -147,6 +147,10 @@ class jwk_ana_event_lhcDump : public edm::one::EDAnalyzer<>  {
                         float rh2GeV_EB_s2time;
                         float rh2GeV_EB_stime;
                         unsigned int rh2GeV_EB_count;
+                        float rh3GeV_EB_mtime;
+                        float rh3GeV_EB_s2time;
+                        float rh3GeV_EB_stime;
+                        unsigned int rh3GeV_EB_count;
                         float rh5GeV_EB_mtime;
                         float rh5GeV_EB_s2time;
                         float rh5GeV_EB_stime;
@@ -416,8 +420,8 @@ void jwk_ana_event_lhcDump::initRoot()
 	time_t timer;
 	std::time(&timer);
 
-        title << "Dump of LHCinfo & Event data";
-        fname << "dump_LHCInfo_Event_";
+        title << "Dump2 of LHCinfo & Event data";
+        fname << "dump2_LHCInfo_Event_";
 	fname << timeToString(timer);
         fname << ".";
         fname << "r";
@@ -463,6 +467,12 @@ void jwk_ana_event_lhcDump::initRoot()
 	tree->Branch("rh2GeV_EB_s2time",                    &rh2GeV_EB_s2time,                   "rh2GeV_EB_s2time/f");
 	tree->Branch("rh2GeV_EB_stime",                    &rh2GeV_EB_stime,                   "rh2GeV_EB_stime/f");
 	tree->Branch("rh2GeV_EB_count",                    &rh2GeV_EB_count,                   "rh2GeV_EB_count/i");
+
+        tree->Branch("rh3GeV_EB_mtime",                    &rh3GeV_EB_mtime,                   "rh3GeV_EB_mtime/f");
+        tree->Branch("rh3GeV_EB_s2time",                    &rh3GeV_EB_s2time,                   "rh3GeV_EB_s2time/f");
+        tree->Branch("rh3GeV_EB_stime",                    &rh3GeV_EB_stime,                   "rh3GeV_EB_stime/f");
+        tree->Branch("rh3GeV_EB_count",                    &rh3GeV_EB_count,                   "rh3GeV_EB_count/i");
+
 	tree->Branch("rh5GeV_EB_mtime",                    &rh5GeV_EB_mtime,                   "rh5GeV_EB_mtime/f");
 	tree->Branch("rh5GeV_EB_s2time",                    &rh5GeV_EB_s2time,                   "rh5GeV_EB_s2time/f");
 	tree->Branch("rh5GeV_EB_stime",                    &rh5GeV_EB_stime,                   "rh5GeV_EB_stime/f");
@@ -578,7 +588,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
 	std::vector<std::vector<float>> fill_be;
 	std::vector<std::vector<std::vector<float>>> timemap;
 	for( int be = 0; be < 3; be++ ){ timemap.push_back(fill_be);} // 0=EB, 1=EEP, 2=EEM
-	for( int be = 0; be < 3; be++ ){ for( int e = 0; e < 6; e++ ){ timemap[be].push_back(fill_e); }} // 0 = all, 1 = 1GeV, 2 = 2GeV, 3 = 5GeV, 4 = 10Gev, 5 = 20GeV
+	for( int be = 0; be < 3; be++ ){ for( int e = 0; e < 7; e++ ){ timemap[be].push_back(fill_e); }} // 0 = all, 1 = 1GeV, 2 = 2GeV, 3 = 5GeV, 4 = 10Gev, 5 = 20GeV, 6=3GeV
 
         for(auto  recHit : *RecHitEBHandle) {
 
@@ -588,6 +598,7 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
                 if( recHit.energy() > 5 ){ timemap[0][3].push_back(recHit.time());}
                 if( recHit.energy() > 10 ){ timemap[0][4].push_back(recHit.time());}
                 if( recHit.energy() > 20 ){ timemap[0][5].push_back(recHit.time());}
+                if( recHit.energy() > 3 ){ timemap[0][6].push_back(recHit.time());}
 		h28_rh_EB_Energy->Fill(recHit.energy());
 //	        recHit_EB_times.push_back(rechit.time());
 	
@@ -634,6 +645,12 @@ void jwk_ana_event_lhcDump::dbtoRoot( const LHCInfo& lhcInfo, edm::Handle<EcalRe
         rh2GeV_EB_s2time = getsum2( timemap[0][2] );
         rh2GeV_EB_stime = getsum( timemap[0][2] );
         rh2GeV_EB_count = timemap[0][2].size();
+
+        rh3GeV_EB_mtime = getmean( timemap[0][6] );
+        rh3GeV_EB_s2time = getsum2( timemap[0][6] );
+        rh3GeV_EB_stime = getsum( timemap[0][6] );
+        rh3GeV_EB_count = timemap[0][6].size();
+
         rh5GeV_EB_mtime = getmean( timemap[0][3] );
         rh5GeV_EB_s2time = getsum2( timemap[0][3] );
         rh5GeV_EB_stime = getsum( timemap[0][3] );

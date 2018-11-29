@@ -165,12 +165,24 @@ private:
         bool _isSplash; ///< flag to activate for splash analysis
         bool _saveTimingEvents; ///< flag to save timing events tree
 	bool _makeEventPlots; ///< flag for making plots for each event (meant for splashes)
+        bool _applyAmpThresEB;
+        bool _applyAmpThresEE;
+        edm::EDGetTokenT<EcalUncalibratedRecHitCollection> _ebUncalibRechits;
+        edm::EDGetTokenT<EcalUncalibratedRecHitCollection> _eeUncalibRechits;
 	edm::EDGetTokenT<EcalTimingCollection> _timingEvents; ///< input collection
 	unsigned int _recHitMin; ///< require at least this many rec hits to count the event
 	double _minRecHitEnergyStep; ///< to check step size to check energy stability
 	double _minRecHitEnergyNStep; ///< number of steps to check energy stability
         double _energyThresholdOffsetEB; ///< energy to add to the minimum energy thresholc
         double _energyThresholdOffsetEE; ///< energy to add to the minimum energy thresholc
+        double _ampFrac; 
+        std::vector<double> _ampCut_barrelP; ///< minimum amplitude threshold in EBP
+        std::vector<double> _ampCut_barrelM; ///< minimum amplitude threshold in EBM
+        std::vector<double> _ampCut_endcapP; ///< minimum amplitude threshold in EEP
+        std::vector<double> _ampCut_endcapM; ///< minimum amplitude threshold in EEM
+        std::vector<double> _eThresholdsEB; ///< minimum energy threshold in EB
+        std::vector<double> _parAThresholds_endcap; ///<B + A*ring 2018 thr are defined as two linear cut (one for iring<30 and one above)
+        std::vector<double> _parBThresholds_endcap; ///<B + A*ring 2018 thr are defined as two linear cut (one for iring<30 and one above)
 	unsigned int _minEntries; ///< require a minimum number of entries in a ring to do averages
 	float        _globalOffset;    ///< time to subtract from every event
         bool _storeEvents;
@@ -207,7 +219,7 @@ private:
 		 - at each iteration the recHit threshold is raised by _minRecHitEnergyStep
 		 If the recHit is used, the time information is added to _eventTimeMap
 	*/
-	bool addRecHit(const EcalTimingEvent& recHit, EventTimeMap& eventTimeMap_);
+	bool addRecHit(const EcalTimingEvent& recHit, EventTimeMap& eventTimeMap_, const EcalUncalibratedRecHitCollection *ebUncalibRechitsCollection, const EcalUncalibratedRecHitCollection *eeUncalibRechitsCollection);
 
 
 	/// Adds the recHit to the per Event histograms
@@ -231,8 +243,19 @@ private:
            if(itr == _CrysEnergyMap.end())
            {
               int iRing = _ringTools.getRingIndexInSubdet(detid);
-              _CrysEnergyMap[detid] = detid.subdetId() == EcalBarrel ? 13 * 0.04  + _energyThresholdOffsetEB :  
-              20 * (79.29 - 4.148 * iRing + 0.2442 * iRing * iRing ) / 1000  + _energyThresholdOffsetEE;
+              if(detid.subdetId() == EcalBarrel)
+              {
+                 _CrysEnergyMap[detid] = 13*0.04 + _energyThresholdOffsetEB;
+                 //std::cout << "EB-" << iRing << ": " << _CrysEnergyMap[detid] << std::endl;
+                 //_CrysEnergyMap[detid] = _eThresholdsEB[iRing]  + _energyThresholdOffsetEB;
+              }else{
+                 if(iRing < 30)
+	            //_CrysEnergyMap[detid] = (_parBThresholds_endcap[0] + _parAThresholds_endcap[0]*iRing);
+                    _CrysEnergyMap[detid] = 20 * (79.29 - 4.148 * iRing + 0.2442 * iRing * iRing ) / 1000 + _energyThresholdOffsetEE;
+                 else
+                    _CrysEnergyMap[detid] = (_parBThresholds_endcap[1] + _parAThresholds_endcap[1]*iRing);
+                 //std::cout << "EE-" << iRing << ": " << _CrysEnergyMap[detid] << std::endl;
+              }
            }
            return _CrysEnergyMap[detid];
         }

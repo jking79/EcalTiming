@@ -71,6 +71,10 @@ for($index=0;$index<=$#runs;$index++)
 
  $JOBdir = $RUNNumber;
 
+ $command = "rm -rf  /eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/*.root";
+ print "Removing: /eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/*.root \n";
+ system ($command) ;
+
  $LISTOFSamples = "fileList.txt";
  $command = "touch ".$LISTOFSamples ;
  system ($command) ;
@@ -119,7 +123,9 @@ for($index=0;$index<=$#runs;$index++)
 	system ($command) ;
 	$command = "chmod 777 ".$tempBjob ;
 	system ($command) ;
-        $command = "cp  ../test/".$JOBCfgTemplate." ".$jobDir;
+        $command = "cp ".$JOBCfgTemplate." ".$jobDir;
+	system ($command) ;
+        $command = "cp ecalTimingCalibProducer_cfi.py ".$jobDir;
 	system ($command) ;
         if($JSONFile ne "0"){
            $command = "cp  ../".$JSONFile." ".$jobDir;
@@ -172,27 +178,22 @@ for($index=0;$index<=$#runs;$index++)
          
         $command = "export X509_USER_PROXY ".$X509_USER_PROXY ;
 	print SAMPLEJOBFILE $command."\n";
+
+        $command = "eos mkdir ".$OUTPUTSAVEPath."/".$JOBdir;
+	print SAMPLEJOBFILE $command."\n";
         
         if($JSONFile eq "0"){
-	   $command = "cmsRun ".$JOBCfgTemplate." files=root://cms-xrd-global.cern.ch/".$file." globaltag=".$GT." output=".$OUTPUTFILEName."_".$jobIt;
+	   $command = "cmsRun ".$JOBCfgTemplate." files=root://cms-xrd-global.cern.ch/".$file." globaltag=".$GT." output=/eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/".$OUTPUTFILEName."_".$jobIt.".root";
 	   print SAMPLEJOBFILE $command."\n";
         }else{
-           $command = "cmsRun ".$JOBCfgTemplate." files=root://cms-xrd-global.cern.ch/".$file." globaltag=".$GT." jsonFile=".$JSONFile." output=".$OUTPUTFILEName."_".$jobIt;
+           $command = "cmsRun ".$JOBCfgTemplate." files=root://cms-xrd-global.cern.ch/".$file." globaltag=".$GT." jsonFile=".$JSONFile." output=/eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/".$OUTPUTFILEName."_".$jobIt.".root";
 	   print SAMPLEJOBFILE $command."\n";
         }
-        
-        #$command = "eos mkdir ".$OUTPUTSAVEPath."/".$JOBdir;
-        $command = "mkdir ".$OUTPUTSAVEPath."/".$JOBdir;
-	print SAMPLEJOBFILE $command."\n";
 
-	#$command = "cp ".$OUTPUTFILEName."_".$jobIt.".root /eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/";
-        $command = "cp ".$OUTPUTFILEName."_".$jobIt.".root ".$OUTPUTSAVEPath."/".$JOBdir."/";
-	print SAMPLEJOBFILE $command."\n";
 
-        $command = "rm ".$OUTPUTFILEName."_".$jobIt.".root";
-	print SAMPLEJOBFILE $command."\n";
+        #$command = "rm -rf  /eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/*.dat";         
+        #print SAMPLEJOBFILE $command."\n";
 
-	
 	############
 	# submit job
 	############

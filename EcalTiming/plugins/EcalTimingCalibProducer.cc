@@ -34,6 +34,10 @@ EcalTimingCalibProducer::EcalTimingCalibProducer(const edm::ParameterSet& iConfi
 	_isSplash(iConfig.getParameter<bool>("isSplash")),
         _saveTimingEvents(iConfig.getParameter<bool>("saveTimingEvents")),
 	_makeEventPlots(iConfig.getParameter<bool>("makeEventPlots")),
+        _applyAmpThresEB(iConfig.getParameter<bool>("applyAmpThresEB")),
+        _applyAmpThresEE(iConfig.getParameter<bool>("applyAmpThresEE")),
+        _ebUncalibRechits(consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebUncalibRechits"))),
+        _eeUncalibRechits(consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeUncalibRechits"))),
 	_timingEvents(consumes<EcalTimingCollection>(iConfig.getParameter<edm::InputTag>("timingCollection"))),
 	_recHitMin(iConfig.getParameter<unsigned int>("recHitMinimumN")),
 
@@ -42,6 +46,14 @@ EcalTimingCalibProducer::EcalTimingCalibProducer(const edm::ParameterSet& iConfi
         _minRecHitEnergyNStep(iConfig.getParameter<double>("minRecHitEnergyNStep")),
         _energyThresholdOffsetEB(iConfig.getParameter<double>("energyThresholdOffsetEB")),
         _energyThresholdOffsetEE(iConfig.getParameter<double>("energyThresholdOffsetEE")),
+        _ampFrac(iConfig.getParameter<double>("ampFrac")),
+        _ampCut_barrelP(iConfig.getParameter<vector<double> >("ampCut_barrelP")),
+        _ampCut_barrelM(iConfig.getParameter<vector<double> >("ampCut_barrelM")),
+        _ampCut_endcapP(iConfig.getParameter<vector<double> >("ampCut_endcapP")),
+        _ampCut_endcapM(iConfig.getParameter<vector<double> >("ampCut_endcapM")),
+        _eThresholdsEB(iConfig.getParameter<vector<double> >("eThresholdsEB")),
+        _parAThresholds_endcap(iConfig.getParameter<vector<double> >("parAThresholds_endcap")),
+        _parBThresholds_endcap(iConfig.getParameter<vector<double> >("parBThresholds_endcap")),
         _minEntries(iConfig.getParameter<unsigned int>("minEntries")),
         _globalOffset(iConfig.getParameter<double>("globalOffset")),
 	_storeEvents(iConfig.getParameter<bool>("storeEvents")),
@@ -86,10 +98,44 @@ void EcalTimingCalibProducer::beginJob()
 }
 
 
-bool EcalTimingCalibProducer::addRecHit(const EcalTimingEvent& timeEvent, EventTimeMap& eventTimeMap_)
+bool EcalTimingCalibProducer::addRecHit(const EcalTimingEvent& timeEvent, EventTimeMap& eventTimeMap_, const EcalUncalibratedRecHitCollection *ebUncalibRechitsCollection, const EcalUncalibratedRecHitCollection *eeUncalibRechitsCollection)
 {
 	float energyThreshold = getEnergyThreshold(timeEvent.detid()); 
-	if( timeEvent.energy() < (energyThreshold) ) return false;
+        int iRing = _ringTools.getRingIndexInSubdet(timeEvent.detid());
+        if(timeEvent.detid().subdetId() == EcalBarrel)
+        {
+          
+	   if( timeEvent.energy() < (energyThreshold) ) return false;
+           if(_applyAmpThresEB == true)
+           {
+             float amplitude = (*ebUncalibRechitsCollection->find(timeEvent.detid())).amplitude();
+             float maxOOTAmp = 0.;
+             for(int bx=0;bx<10;bx++)
+                 if((*ebUncalibRechitsCollection->find(timeEvent.detid())).outOfTimeAmplitude(bx) > maxOOTAmp) maxOOTAmp = (*ebUncalibRechitsCollection->find(timeEvent.detid())).outOfTimeAmplitude(bx);
+             //EBDetId hitDetId = timeEvent.detid();
+             if(iRing<0 && amplitude<_ampCut_barrelM[abs(iRing)]) return false; 
+             if(iRing>0 && amplitude<_ampCut_barrelP[iRing]) return false; 
+             if(amplitude/maxOOTAmp < _ampFrac && maxOOTAmp>0.) return false;
+             //std::cout << "EB: " << hitDetId.ieta() << " " << iRing << " " << _ampCut_barrelM[abs(iRing)] << " " << amplitude << std::endl;
+           }
+
+        }else{
+
+	   if( timeEvent.energy() < (energyThreshold) ) return false;
+           if(_applyAmpThresEE == true)
+           {
+             float amplitude = (*eeUncalibRechitsCollection->find(timeEvent.detid())).amplitude();
+             float maxOOTAmp = 0.;
+             for(int bx=0;bx<10;bx++)
+                 if((*eeUncalibRechitsCollection->find(timeEvent.detid())).outOfTimeAmplitude(bx) > maxOOTAmp) maxOOTAmp = (*eeUncalibRechitsCollection->find(timeEvent.detid())).outOfTimeAmplitude(bx);
+             EEDetId hitDetId = timeEvent.detid();
+             if(hitDetId.zside()<0 && amplitude<_ampCut_endcapM[iRing]) return false; 
+             if(hitDetId.zside()>0 && amplitude<_ampCut_endcapP[iRing]) return false; 
+             if(amplitude/maxOOTAmp < _ampFrac && maxOOTAmp>0.) return false;
+             //std::cout << "EE: " << iRing << " " << _ampCut_endcapM[iRing] << " " << amplitude << std::endl;
+           }
+
+        }
 
 	// add the EcalTimingEvent to the EcalCreateTimeCalibrations
 	_eventTimeMap.emplace(timeEvent.detid(), timeEvent);
@@ -171,6 +217,17 @@ bool EcalTimingCalibProducer::filter(edm::Event& iEvent, const edm::EventSetup& 
 	iSetup.get<EcalMappingRcd>().get(hElecMap);
 	elecMap_ = hElecMap.product();
 
+        // here the getByToken of the uncalibrechits
+	edm::Handle<EcalUncalibratedRecHitCollection> ebUncalibRechits;
+	iEvent.getByToken(_ebUncalibRechits,ebUncalibRechits);
+        const EcalUncalibratedRecHitCollection *ebUncalibRechitsCollection = NULL;
+        ebUncalibRechitsCollection = ebUncalibRechits.product();
+
+        edm::Handle<EcalUncalibratedRecHitCollection> eeUncalibRechits;
+	iEvent.getByToken(_eeUncalibRechits,eeUncalibRechits);
+        const EcalUncalibratedRecHitCollection *eeUncalibRechitsCollection = NULL;
+        eeUncalibRechitsCollection = eeUncalibRechits.product();
+
 	// here the getByToken of the rechits
 	edm::Handle<EcalTimingCollection> timingCollection;
 	iEvent.getByToken(_timingEvents, timingCollection);
@@ -212,7 +269,7 @@ bool EcalTimingCalibProducer::filter(edm::Event& iEvent, const edm::EventSetup& 
 #ifdef DEBUG
            std::cout << timeEvent << std::endl;
 #endif
-           if(addRecHit(timeEvent, _eventTimeMap)) {
+           if(addRecHit(timeEvent, _eventTimeMap,ebUncalibRechitsCollection,eeUncalibRechitsCollection)) {
               if( timeEvent.detid().subdetId() == EcalBarrel) {
                  timeEB.add(EcalTimingEvent(timeEvent), false);
               } else {

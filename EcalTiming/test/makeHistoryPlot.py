@@ -215,6 +215,8 @@ else:
 allCalib_list.sort()
 y_min = allCalib_list[0]-0.1
 y_max = allCalib_list[len(allCalib_list)-1]+0.2
+if(absTime == True):
+   y_max = allCalib_list[len(allCalib_list)-1]+0.5
 if(ix != "" and iy != "" and iz != ""):
    y_min = allCalib_list[0]-1.
    y_max = allCalib_list[len(allCalib_list)-1]+1.
@@ -307,7 +309,7 @@ if(runBased == False):
    test.GetXaxis().SetTitle("date")
    test.GetXaxis().SetTimeDisplay(1)
    test.GetXaxis().SetTimeFormat("%d/%m%F1970-01-01 00:00:00s0")
-   test.GetXaxis().SetNdivisions(512)
+   test.GetXaxis().SetNdivisions(510)
    test.GetXaxis().SetLabelFont(42)
    test.GetXaxis().SetLabelOffset(0.007)
    test.GetXaxis().SetLabelSize(0.04) 
@@ -340,7 +342,7 @@ else:
 if(absTime == False):
    test.GetYaxis().SetTitle("Average Time [ns]")
 else:
-   test.GetYaxis().SetTitle("Absolute Time [ns]")
+   test.GetYaxis().SetTitle("-(Average DB Hit-Time) [ns]")
 test.GetYaxis().SetLabelFont(42)
 #test.GetYaxis().SetLabelOffset(0.007)
 test.GetYaxis().SetLabelSize(0.05)
@@ -381,6 +383,26 @@ line_IOV4_in = TLine(1526746800,float(y_min),1526746800,float(y_max))
 line_IOV4_in.SetLineColor(417)
 line_IOV4_in.SetLineStyle(8)
 line_IOV4_in.SetLineWidth(2)
+
+line_IOV5_in = TLine(1528243200,float(y_min),1528243200,float(y_max))
+line_IOV5_in.SetLineColor(417)
+line_IOV5_in.SetLineStyle(8)
+line_IOV5_in.SetLineWidth(2)
+
+line_IOV6_in = TLine(1530144000,float(y_min),1530144000,float(y_max))
+line_IOV6_in.SetLineColor(417)
+line_IOV6_in.SetLineStyle(8)
+line_IOV6_in.SetLineWidth(2)
+
+line_IOV7_in = TLine(1531008000,float(y_min),1531008000,float(y_max))
+line_IOV7_in.SetLineColor(417)
+line_IOV7_in.SetLineStyle(8)
+line_IOV7_in.SetLineWidth(2)
+
+line_IOV8_in = TLine(1534916924,float(y_min),1534916924,float(y_max))
+line_IOV8_in.SetLineColor(417)
+line_IOV8_in.SetLineStyle(8)
+line_IOV8_in.SetLineWidth(2)
   
 c1 = TCanvas("c1","c1",1)
 c1.SetGrid()
@@ -394,6 +416,14 @@ if(runBased == False):
       line_IOV3_in.Draw("same")
    if(float(timeStamp_begin-0.001e+9)<=1526746800. and float(timeStamp_end+0.001e+9)>=1526746800.):
       line_IOV4_in.Draw("same")  
+   if(float(timeStamp_begin-0.001e+9)<=1528243200. and float(timeStamp_end+0.001e+9)>=1528243200.):
+      line_IOV5_in.Draw("same")  
+   if(float(timeStamp_begin-0.001e+9)<=1530144000. and float(timeStamp_end+0.001e+9)>=1530144000.):
+      line_IOV6_in.Draw("same")  
+   if(float(timeStamp_begin-0.001e+9)<=1531008000. and float(timeStamp_end+0.001e+9)>=1531008000.):
+      line_IOV7_in.Draw("same")  
+   if(float(timeStamp_begin-0.001e+9)<=1534916924. and float(timeStamp_end+0.001e+9)>=1534916924.):
+      line_IOV8_in.Draw("same")  
 if(ix != "" and iy != "" and iz != ""):
    g_EBMinus.Draw("P,same")
 elif(ix == "" and iy == "" and iz == ""):

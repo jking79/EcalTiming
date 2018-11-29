@@ -86,6 +86,8 @@ else:
 #options.files = cms.untracked.vstring
 #options.streamName = cms.untracked.vstring
 options.maxEvents = -1 # -1 means all events
+#options.maxEvents = 50000 # use 500 for jwk_ana_lhcInfoDump
+
 ### get and parse the command line arguments
 options.parseArguments()
 print options
@@ -93,7 +95,8 @@ print options
 processname = options.step
 
 doReco = True
-doAnalysis = True
+#doAnalysis = True
+doAnalysis = False
 if "RECO" not in processname:
 	doReco = False
 if "TIME" not in processname:
@@ -134,6 +137,7 @@ else:
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('EcalTiming.EcalTiming.ecalLocalRecoSequenceAlCaStream_cff')
 process.load('EcalTiming.EcalTiming.ecalLocalRecoSequenceAlCaP0Stream_cff')
 
@@ -163,44 +167,49 @@ process.GlobalTag = cms.ESSource("PoolDBESSource",
                                  globaltag = cms.string(options.globaltag)
 )
 
+#process.GlobalTag.toGet = cms.VPSet(
+#  	cms.PSet(
+#		record = cms.string("LHCInfoRcd"),
+#           	tag = cms.string("LHCInfoStartFillTest_v2")
+#	),
+#	connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS")
+#)
+
 
 ##  This section is for grabbing the constants from a FrontierPrep for validation
 #from CondCore.DBCommon.CondDBSetup_cfi import *
-#
-## rereco of for EOY
-#process.GlobalTag = cms.ESSource("PoolDBESSource",
+#process.LHCInfoReader = cms.ESSource("PoolDBESSource",
 #		CondDBSetup,
 #		connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
 #		globaltag = cms.string(options.globaltag),
 #		toGet = cms.VPSet(
-#			cms.PSet(record = cms.string("EcalTimeCalibConstantsRcd"),
-#				tag = cms.string("EcalTimeCalibConstants_v08_offline"),
-#				connect = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS')
+#                        cms.PSet(record = cms.string("LHCInfoRcd"),
+#                                tag = cms.string("LHCInfoStartFillTest_v2"),
+#				connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')
 #				)
 #			),
 #		)
-#
 
 process.LHCInfoReader = cms.ESSource("PoolDBESSource",
-                DBParameters = cms.PSet(
-                        messageLevel = cms.untracked.int32(0),
-                        authenticationPath = cms.untracked.string('')
-                ),
-                toGet = cms.VPSet(
-                        cms.PSet(
-                                record = cms.string("LHCInfoRcd"),
+		DBParameters = cms.PSet(
+			messageLevel = cms.untracked.int32(0),
+			authenticationPath = cms.untracked.string('')
+		),
+                toGet = cms.VPSet( 
+			cms.PSet(
+				record = cms.string("LHCInfoRcd"),
                                 tag = cms.string("LHCInfoStartFillTest_v2")
-                        )
-                ),
+#                                tag = cms.string("LHCInfoStartFillTest_v0")
+			)
+		),
                 connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')
 )
 
 process.lhcinfo_prefer = cms.ESPrefer("PoolDBESSource","LHCInfoReader")
 
-
-
 ## Process Digi To Raw Step
-process.digiStep = cms.Sequence(process.ecalDigis  + process.ecalPreshowerDigis)
+process.digiStep = cms.Sequence( process.ecalDigis  + process.ecalPreshowerDigis )
+
 
 ## Process Reco
 
@@ -279,6 +288,13 @@ process.dummyHits = cms.EDProducer("DummyRechitDigis",
 
 ##ADDED
 # TRIGGER RESULTS FILTER                                                                                                                                                                                                                                                                   
+#process.load('EcalTiming.EcalTiming.jwk_filter_cfi')
+#process.my_process = cms.Sequence( process.my_filter ) 
+#process.load('EcalTiming.EcalTiming.jwk_ana_cfi')
+#process.load('EcalTiming.EcalTiming.jwk_ana_lhcDump_cfi')
+process.load('EcalTiming.EcalTiming.jwk_ana_event_lhcDump_cfi')
+process.my_process = cms.Sequence( process.my_ana )
+
 process.triggerSelectionLoneBunch = cms.EDFilter( "TriggerResultsFilter",
                                                    triggerConditions = cms.vstring('L1_AlwaysTrue'),
                                                    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
@@ -339,7 +355,7 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
 
 if doAnalysis:
-	process.load('EcalTiming.EcalTiming.jwk_ecalTimingCalibProducer_cfi')
+	process.load('EcalTiming.EcalTiming.ecalTimingCalibProducer_cfi')
 	process.timing.timingCollection = cms.InputTag("EcalTimingEvents")
 	process.timing.isSplash= cms.bool(True if options.isSplash else False)
         process.timing.saveTimingEvents= cms.bool(True)
@@ -350,6 +366,7 @@ if doAnalysis:
 	process.timing.energyThresholdOffsetEE = cms.double(options.minEnergyEE)
 	process.timing.storeEvents = cms.bool(True)
 	process.analysis = cms.Sequence( process.timing )
+	process.timing.ph_sign_corr = cms.double(0.0)
 
 process.load('EcalTiming.EcalTiming.EcalTimingSequence_cff')
 if doReco:
@@ -363,12 +380,14 @@ if doReco:
 process.seq = cms.Sequence()
 if doReco:
 	process.seq += process.reco
+	process.seq += process.my_process
 if doAnalysis:
 	process.seq += process.analysis
 else:
 	process.endp = cms.EndPath(process.RECOoutput)
 
 process.p = cms.Path(process.seq)
+
 from datetime import datetime
 processDumpFilename = "processDump" + datetime.now().strftime("%M%S%f") + ".py"
 processDumpFile = open(processDumpFilename, 'w')

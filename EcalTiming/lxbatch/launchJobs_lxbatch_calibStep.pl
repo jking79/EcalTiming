@@ -59,8 +59,13 @@ $tempBjob = $jobDir."/bjob.sh" ;
 $LISTOFFiles = "./list_files_tmp.txt" ;
 for($index=0;$index<=$#runs;$index++)
 {
-    system ("eos find -f ".$INPUTDir."/".$runs[$index]."/ | grep .root >> ".$LISTOFFiles."\n") ;
+    #system ("eos find -f ".$INPUTDir."/".$runs[$index]."/ | grep .root >> ".$LISTOFFiles."\n") ;
+    system ("find ".$INPUTDir."/".$runs[$index]."/ | grep .root >> ".$LISTOFFiles."\n") ;
 }
+
+system ( "ls ".$LISTOFFiles."\n");
+
+print "Created LISTOFFiles \n";
 
 $JOBLISTOFFiles;
 
@@ -72,10 +77,11 @@ while (<LISTOFFiles>)
     s/^\s+//;               # no leading white
     s/\s+$//;               # no trailing white
     $file = $_ ;
-    $remove = "/eos/cms";
-    $file  =~ s/$remove// ;
+#    $remove = "/eos/cms";
+#    $file  =~ s/$remove// ;
     
-    $JOBLISTOFFiles = $JOBLISTOFFiles."root://eoscms.cern.ch/".$file.",";
+#    $JOBLISTOFFiles = $JOBLISTOFFiles."root://eoscms.cern.ch/".$file.",";
+    $JOBLISTOFFiles = $JOBLISTOFFiles.$file.",";
 }
 
 
@@ -107,6 +113,9 @@ system ($command) ;
 # make job files
 ######################    
     
+$command = "export X509_USER_PROXY ".$X509_USER_PROXY ;
+print SAMPLEJOBFILE $command."\n";
+
 open (SAMPLEJOBFILE, ">", $tempBjob) or die "Can't open file ".$tempBjob;
 
 $command = "#!/bin/tcsh" ;
@@ -136,7 +145,6 @@ print SAMPLEJOBFILE $command."\n";
 #$command = "cp output/ecalTiming-corr.dat /eos/cms/".$OUTDir."/";
 #print SAMPLEJOBFILE $command."\n";
 
-	
 ############
 # submit job
 ############

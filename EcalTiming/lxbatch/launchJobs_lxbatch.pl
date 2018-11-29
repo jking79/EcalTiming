@@ -36,7 +36,7 @@ $GT               = $User_Preferences{"GT"};
 
 
 print "BASEDir = "          .$BASEDir."\n" ;
-print "X509_USER_PROXY = "  .$X509_USER_PROXY."\n" ;
+print "X509_USER_PROXY = "  .."\n" ;
 print "JOBCfgTemplate = "   .$JOBCfgTemplate."\n" ;
 print "DATASETName = "      .$DATASETName."\n" ;
 print "INPUTRuns = "        .$INPUTRuns."\n" ;
@@ -60,6 +60,8 @@ open(SAMPLEJOBLISTFILE, ">", $sampleJobListFile);
 
 $totalJobs = 0;
 
+
+
 for($index=0;$index<=$#runs;$index++)
 {
 
@@ -77,6 +79,8 @@ for($index=0;$index<=$#runs;$index++)
  $command = "touch ".$LISTOFSamples ;
  system ($command) ;
  system ("dasgoclient --query='file dataset=".$DATASETName." run=".$RUNNumber."' --limit=0 >> fileList.txt \n") ;
+
+ system("ls fileList.txt \n");
   
  open (LISTOFSamples,$LISTOFSamples) ;
  while (<LISTOFSamples>)
@@ -172,7 +176,7 @@ for($index=0;$index<=$#runs;$index++)
 	$command = "eval `scramv1 ru -csh`" ;
 	print SAMPLEJOBFILE $command."\n";
          
-        $command = "setenv X509_USER_PROXY ".$X509_USER_PROXY ;
+        $command = "export X509_USER_PROXY ".$X509_USER_PROXY ;
 	print SAMPLEJOBFILE $command."\n";
 
         $command = "eos mkdir ".$OUTPUTSAVEPath."/".$JOBdir;
@@ -185,6 +189,7 @@ for($index=0;$index<=$#runs;$index++)
            $command = "cmsRun ".$JOBCfgTemplate." files=root://cms-xrd-global.cern.ch/".$file." globaltag=".$GT." jsonFile=".$JSONFile." output=/eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/".$OUTPUTFILEName."_".$jobIt.".root";
 	   print SAMPLEJOBFILE $command."\n";
         }
+
 
         #$command = "rm -rf  /eos/cms/".$OUTPUTSAVEPath."/".$JOBdir."/*.dat";         
         #print SAMPLEJOBFILE $command."\n";
